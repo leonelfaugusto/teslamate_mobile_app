@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:teslamate/classes/charge_detail.dart';
 
 Future<List<Charge>> fetchCharges() async {
   final response = await http.get(Uri.parse('http://10.10.20.121:8080/api/v1/cars/1/charges'));
@@ -9,23 +10,10 @@ Future<List<Charge>> fetchCharges() async {
     // If the server did return a 200 OK response,
     // then parse the JSON.
     Map<String, dynamic> body = jsonDecode(response.body);
-    body['data']['charges'].forEach((charge) => charges.add(Charge.fromJson(charge)));
+    for (var charge in (body['data']['charges'] as List)) {
+      charges.add(Charge.fromJson(charge));
+    }
     return charges;
-  } else {
-    // If the server did not return a 200 OK response,
-    // then throw an exception.
-    throw Exception('Failed to load charge');
-  }
-}
-
-Future<Charge> fetchCharge() async {
-  final response = await http.get(Uri.parse('http://10.10.20.121:8080/api/v1/cars/1/charges/35'));
-
-  if (response.statusCode == 200) {
-    // If the server did return a 200 OK response,
-    // then parse the JSON.
-    Map<String, dynamic> body = jsonDecode(response.body);
-    return Charge.fromJson(body['data']['charge']);
   } else {
     // If the server did not return a 200 OK response,
     // then throw an exception.
@@ -35,16 +23,17 @@ Future<Charge> fetchCharge() async {
 
 class Charge {
   final int chargeId;
-  final String startDate;
-  final String endDate;
+  final DateTime startDate;
+  final DateTime endDate;
   final int durationMin;
   final String durationStr;
   final dynamic cost;
   final int startBatteryLevel;
   final int endBatteryLevel;
   final int batteryDiff;
+  List<ChargeDetail> chargeDetails;
 
-  const Charge({
+  Charge({
     required this.chargeId,
     required this.startDate,
     required this.endDate,
@@ -54,13 +43,14 @@ class Charge {
     required this.startBatteryLevel,
     required this.endBatteryLevel,
     required this.batteryDiff,
+    this.chargeDetails = const [],
   });
 
   factory Charge.fromJson(Map<String, dynamic> json) {
     return Charge(
       chargeId: json['charge_id'],
-      startDate: json['start_date'],
-      endDate: json['end_date'],
+      startDate: DateTime.parse(json['start_date']),
+      endDate: DateTime.parse(json['end_date']),
       durationMin: json['duration_min'],
       durationStr: json['duration_str'],
       cost: json['cost'],
@@ -68,5 +58,10 @@ class Charge {
       endBatteryLevel: json['battery_details']['end_battery_level'],
       batteryDiff: json['battery_details']['end_battery_level'] - json['battery_details']['start_battery_level'],
     );
+  }
+
+  Future<List<ChargeDetail>> fetchMoreInfo() async {
+    chargeDetails = await fetchChargeDetails(chargeId);
+    return chargeDetails;
   }
 }

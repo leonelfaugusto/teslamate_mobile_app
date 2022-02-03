@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:teslamate/classes/Charge.dart';
+import 'package:teslamate/classes/charge.dart';
+import 'package:teslamate/classes/drive.dart';
 import 'package:teslamate/components/charge_card.dart';
 import 'package:teslamate/components/drive_card.dart';
 
@@ -12,17 +13,18 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   late Future<List<Charge>> futureCharge;
+  late Future<List<Drive>> futureDrive;
 
   @override
   void initState() {
     super.initState();
     futureCharge = fetchCharges();
+    futureDrive = fetchDrives();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Dashboard")),
       body: SingleChildScrollView(
         child: Container(
           padding: const EdgeInsets.all(8.0),
@@ -68,9 +70,31 @@ class _DashboardState extends State<Dashboard> {
                   style: Theme.of(context).textTheme.headline5,
                 ),
               ),
-              const DriveCard(),
-              const DriveCard(),
-              const DriveCard(),
+              FutureBuilder<List<Drive>>(
+                future: fetchDrives(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return Column(
+                      children: [
+                        DriveCard(
+                          drive: snapshot.data![0],
+                        ),
+                        DriveCard(
+                          drive: snapshot.data![1],
+                        ),
+                        DriveCard(
+                          drive: snapshot.data![2],
+                        ),
+                      ],
+                    );
+                  } else if (snapshot.hasError) {
+                    return Text('${snapshot.error}');
+                  }
+
+                  // By default, show a loading spinner.
+                  return const CircularProgressIndicator();
+                },
+              ),
             ],
           ),
         ),

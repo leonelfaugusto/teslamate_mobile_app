@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:teslamate/classes/drive.dart';
 
 class DriveCard extends StatelessWidget {
-  const DriveCard({Key? key}) : super(key: key);
+  final Drive drive;
+  const DriveCard({Key? key, required this.drive}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -12,12 +15,12 @@ class DriveCard extends StatelessWidget {
         child: Column(
           children: [
             ListTile(
-                title: const Text("20/03/2022"),
+                title: Text(DateFormat("E, dd MMM", "pt").format(drive.startDate)),
                 subtitle: Text(
-                  '14:30 - 14:30',
+                  "${DateFormat("hh:mm", "pt").format(drive.startDate)} - ${DateFormat("hh:mm", "pt").format(drive.endDate)}",
                   style: TextStyle(color: Colors.black.withOpacity(0.6)),
                 ),
-                trailing: const Text("200Km")),
+                trailing: Text('${drive.distance}Km')),
           ],
         ),
       ),

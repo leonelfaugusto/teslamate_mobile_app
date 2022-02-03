@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:teslamate/screens/dashboard.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:teslamate/screens/charge_screen.dart';
+import 'package:teslamate/screens/home.dart';
 import 'package:teslamate/utils/routes.dart';
 
 void main() {
-  runApp(const Home());
+  runApp(const App());
 }
 
-class Home extends StatelessWidget {
-  const Home({Key? key}) : super(key: key);
+class App extends StatelessWidget {
+  const App({Key? key}) : super(key: key);
 
   // This widget is the root of your application.
   @override
@@ -17,7 +19,17 @@ class Home extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.deepOrange).copyWith(secondary: Colors.lightGreen),
       ),
-      routes: {Routes.dashboard: (_) => const Dashboard()},
+      routes: {
+        Routes.home: (_) => const Home(),
+        Routes.charge: (_) => const ChargeScreen(),
+      },
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale("pt", "pt_PT"),
+      ],
     );
   }
 }

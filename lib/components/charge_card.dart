@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:teslamate/classes/Charge.dart';
+import 'package:intl/intl.dart';
+import 'package:teslamate/classes/charge.dart';
+import 'package:teslamate/utils/routes.dart';
 
 class ChargeCard extends StatelessWidget {
   final Charge charge;
@@ -10,13 +12,19 @@ class ChargeCard extends StatelessWidget {
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () => print("teste"),
+        onTap: () {
+          Navigator.pushNamed(
+            context,
+            Routes.charge,
+            arguments: charge,
+          );
+        },
         child: Column(
           children: [
             ListTile(
-                title: const Text("20/03/2022"),
+                title: Text(DateFormat("E, dd MMM", "pt").format(charge.startDate)),
                 subtitle: Text(
-                  '14:30 - 14:30',
+                  "${DateFormat("HH:mm", "pt").format(charge.startDate)} - ${DateFormat("HH:mm", "pt").format(charge.endDate)}",
                   style: TextStyle(color: Colors.black.withOpacity(0.6)),
                 ),
                 trailing: Text('${charge.batteryDiff}%')),
