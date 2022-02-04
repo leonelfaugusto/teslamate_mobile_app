@@ -22,12 +22,19 @@ class ChargeCard extends StatelessWidget {
         child: Column(
           children: [
             ListTile(
-                title: Text(DateFormat("E, dd MMM", "pt").format(charge.startDate)),
+                title: Text(DateFormat("d MMMM y", "pt").format(charge.startDate)),
                 subtitle: Text(
                   "${DateFormat("HH:mm", "pt").format(charge.startDate)} - ${DateFormat("HH:mm", "pt").format(charge.endDate)}",
                   style: TextStyle(color: Colors.black.withOpacity(0.6)),
                 ),
-                trailing: Text('${charge.batteryDiff}%')),
+                trailing: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('${charge.batteryDiff}%'),
+                    Text(charge.address),
+                  ],
+                )),
           ],
         ),
       ),

@@ -31,6 +31,9 @@ class Charge {
   final int startBatteryLevel;
   final int endBatteryLevel;
   final int batteryDiff;
+  final String address;
+  final dynamic chargeEnergyAdded;
+  final dynamic chargeenergyUsed;
   List<ChargeDetail> chargeDetails;
 
   Charge({
@@ -43,6 +46,9 @@ class Charge {
     required this.startBatteryLevel,
     required this.endBatteryLevel,
     required this.batteryDiff,
+    required this.address,
+    required this.chargeEnergyAdded,
+    required this.chargeenergyUsed,
     this.chargeDetails = const [],
   });
 
@@ -56,6 +62,9 @@ class Charge {
       cost: json['cost'],
       startBatteryLevel: json['battery_details']['start_battery_level'],
       endBatteryLevel: json['battery_details']['end_battery_level'],
+      address: json['address'],
+      chargeEnergyAdded: json['charge_energy_added'],
+      chargeenergyUsed: json['charge_energy_used'],
       batteryDiff: json['battery_details']['end_battery_level'] - json['battery_details']['start_battery_level'],
     );
   }

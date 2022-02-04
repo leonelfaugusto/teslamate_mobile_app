@@ -15,24 +15,40 @@ class LineChart extends StatelessWidget {
         data: data,
         domainFn: (dynamic series, _) => series.x,
         measureFn: (dynamic series, _) => series.y,
-      )
+        colorFn: (_, __) => charts.MaterialPalette.green.shadeDefault,
+      )..setAttribute(charts.rendererIdKey, 'customArea')
     ];
 
-    return charts.LineChart(
-      series,
-      animate: true,
-      domainAxis: const charts.NumericAxisSpec(
-        showAxisLine: true,
-        renderSpec: charts.NoneRenderSpec(),
-      ),
-      primaryMeasureAxis: const charts.NumericAxisSpec(tickProviderSpec: charts.BasicNumericTickProviderSpec(zeroBound: false)),
-      behaviors: [
-        charts.LinePointHighlighter(
-          showHorizontalFollowLine: charts.LinePointHighlighterFollowLineType.nearest,
-          showVerticalFollowLine: charts.LinePointHighlighterFollowLineType.nearest,
+    return Card(
+      elevation: 3,
+      clipBehavior: Clip.antiAlias,
+      child: Container(
+        padding: const EdgeInsets.only(
+          right: 10,
+          left: 10,
         ),
-        charts.SelectNearest(eventTrigger: charts.SelectionTrigger.tapAndDrag),
-      ],
+        child: charts.LineChart(
+          series,
+          animate: true,
+          customSeriesRenderers: [
+            charts.LineRendererConfig(
+              customRendererId: 'customArea',
+              includeArea: true,
+            )
+          ],
+          domainAxis: const charts.NumericAxisSpec(
+            showAxisLine: true,
+            renderSpec: charts.NoneRenderSpec(),
+          ),
+          behaviors: [
+            charts.LinePointHighlighter(
+              showHorizontalFollowLine: charts.LinePointHighlighterFollowLineType.nearest,
+              showVerticalFollowLine: charts.LinePointHighlighterFollowLineType.nearest,
+            ),
+            charts.SelectNearest(eventTrigger: charts.SelectionTrigger.tapAndDrag),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -15,7 +15,7 @@ class DriveCard extends StatelessWidget {
         child: Column(
           children: [
             ListTile(
-                title: Text(DateFormat("E, dd MMM", "pt").format(drive.startDate)),
+                title: Text(DateFormat("d MMMM y", "pt").format(drive.startDate)),
                 subtitle: Text(
                   "${DateFormat("hh:mm", "pt").format(drive.startDate)} - ${DateFormat("hh:mm", "pt").format(drive.endDate)}",
                   style: TextStyle(color: Colors.black.withOpacity(0.6)),
