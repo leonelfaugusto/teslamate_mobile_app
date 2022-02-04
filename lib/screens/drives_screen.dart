@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:teslamate/classes/drive.dart';
 import 'package:teslamate/components/drive_card.dart';
+import 'package:teslamate/utils/routes.dart';
 
 class DrivesScreen extends StatefulWidget {
   const DrivesScreen({Key? key}) : super(key: key);
@@ -10,38 +12,33 @@ class DrivesScreen extends StatefulWidget {
 }
 
 class _DrivesScreenState extends State<DrivesScreen> {
-  late Future<List<Drive>> futureDrives;
+  final RefreshController _refreshController = RefreshController(initialRefresh: true);
+  List<Drive> drives = [];
 
-  @override
-  void initState() {
-    super.initState();
-    futureDrives = fetchDrives();
+  void _onRefresh() async {
+    var futureDrives = await fetchDrives();
+    setState(() {
+      drives = futureDrives;
+    });
+    _refreshController.refreshCompleted();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(
-        left: 10,
-        right: 10,
-      ),
-      child: FutureBuilder<List<Drive>>(
-        future: futureDrives,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return ListView.builder(
-              itemCount: snapshot.data?.length,
-              itemBuilder: (context, index) {
-                return DriveCard(drive: snapshot.data![index]);
-              },
-            );
-          } else if (snapshot.hasError) {
-            return Text('${snapshot.error}');
-          }
-
-          // By default, show a loading spinner.
-          return const CircularProgressIndicator();
-        },
+    return Scaffold(
+      body: SmartRefresher(
+        controller: _refreshController,
+        enablePullDown: true,
+        header: const WaterDropMaterialHeader(
+          backgroundColor: RoutesColors.drive,
+        ),
+        onRefresh: _onRefresh,
+        child: ListView.builder(
+          itemCount: drives.length,
+          itemBuilder: (context, index) {
+            return DriveCard(drive: drives[index]);
+          },
+        ),
       ),
     );
   }

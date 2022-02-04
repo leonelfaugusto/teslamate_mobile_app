@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:teslamate/classes/charge.dart';
 import 'package:teslamate/components/charge_card.dart';
+import 'package:teslamate/utils/routes.dart';
 
 class ChargesScreen extends StatefulWidget {
   const ChargesScreen({Key? key}) : super(key: key);
@@ -10,38 +12,33 @@ class ChargesScreen extends StatefulWidget {
 }
 
 class _ChargesScreenState extends State<ChargesScreen> {
-  late Future<List<Charge>> futureCharges;
+  final RefreshController _refreshController = RefreshController(initialRefresh: true);
+  List<Charge> charges = [];
 
-  @override
-  void initState() {
-    super.initState();
-    futureCharges = fetchCharges();
+  void _onRefresh() async {
+    var futureCharges = await fetchCharges();
+    setState(() {
+      charges = futureCharges;
+    });
+    _refreshController.refreshCompleted();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(
-        left: 10,
-        right: 10,
-      ),
-      child: FutureBuilder<List<Charge>>(
-        future: futureCharges,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return ListView.builder(
-              itemCount: snapshot.data?.length,
-              itemBuilder: (context, index) {
-                return ChargeCard(charge: snapshot.data![index]);
-              },
-            );
-          } else if (snapshot.hasError) {
-            return Text('${snapshot.error}');
-          }
-
-          // By default, show a loading spinner.
-          return const CircularProgressIndicator();
-        },
+    return Scaffold(
+      body: SmartRefresher(
+        controller: _refreshController,
+        enablePullDown: true,
+        header: const WaterDropMaterialHeader(
+          backgroundColor: RoutesColors.charge,
+        ),
+        onRefresh: _onRefresh,
+        child: ListView.builder(
+          itemCount: charges.length,
+          itemBuilder: (context, index) {
+            return ChargeCard(charge: charges[index]);
+          },
+        ),
       ),
     );
   }

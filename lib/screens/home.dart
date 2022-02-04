@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:teslamate/screens/charges_screen.dart';
 import 'package:teslamate/screens/dashboard.dart';
 import 'package:teslamate/screens/drives_screen.dart';
+import 'package:teslamate/utils/mqtt_client_wrapper.dart';
 import 'package:teslamate/utils/routes.dart';
 
 class Home extends StatefulWidget {
@@ -12,6 +14,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  late MqttServerClient client;
   int _selectedIndex = 0;
   late String _title;
   late Color _color;
@@ -20,16 +23,16 @@ class _HomeState extends State<Home> {
     RoutesColors.dashboard,
     RoutesColors.charge,
     RoutesColors.drive,
-    RoutesColors.statistics,
     RoutesColors.settings,
+    RoutesColors.statistics,
   ];
 
   static const List<String> _titleOptions = <String>[
     RoutesTabNames.dashboard,
     RoutesTabNames.charge,
     RoutesTabNames.drive,
-    RoutesTabNames.statistics,
     RoutesTabNames.settings,
+    RoutesTabNames.statistics,
   ];
 
   static const List<Widget> _widgetOptions = <Widget>[
@@ -42,12 +45,18 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
-    super.initState();
+    connect(context).then((value) => client = value);
     _title = _titleOptions.elementAt(0);
     _color = _colorOptions.elementAt(0);
+    super.initState();
   }
 
-  void _onItemTapped(int index) {
+  void _onItemTapped(int index) async {
+    if (index == 0) {
+      client = await connect(context);
+    } else {
+      client.disconnect();
+    }
     setState(() {
       _selectedIndex = index;
       _title = _titleOptions.elementAt(index);
@@ -73,24 +82,24 @@ class _HomeState extends State<Home> {
             backgroundColor: _colorOptions.elementAt(0),
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.battery_charging_full),
+            icon: const Icon(Icons.bolt),
             label: _titleOptions.elementAt(1),
             backgroundColor: _colorOptions.elementAt(1),
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.drive_eta),
+            icon: const Icon(Icons.swap_calls),
             label: _titleOptions.elementAt(2),
             backgroundColor: _colorOptions.elementAt(2),
           ),
-          BottomNavigationBarItem(
+          /* BottomNavigationBarItem(
             icon: const Icon(Icons.stacked_bar_chart),
             label: _titleOptions.elementAt(3),
             backgroundColor: _colorOptions.elementAt(3),
-          ),
+          ), */
           BottomNavigationBarItem(
             icon: const Icon(Icons.settings),
-            label: _titleOptions.elementAt(4),
-            backgroundColor: _colorOptions.elementAt(4),
+            label: _titleOptions.elementAt(3),
+            backgroundColor: _colorOptions.elementAt(3),
           ),
         ],
         currentIndex: _selectedIndex,

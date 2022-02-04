@@ -1,8 +1,8 @@
-class Series {
-  final int x;
+class SeriesData {
+  final DateTime x;
   final dynamic y;
 
-  Series({
+  SeriesData({
     required this.x,
     required this.y,
   });

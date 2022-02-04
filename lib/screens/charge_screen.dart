@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:teslamate/charts/line_chart.dart';
-import 'package:teslamate/charts_series/series.dart';
+import 'package:teslamate/charts_series/series_data.dart';
 import 'package:teslamate/classes/charge.dart';
 import 'package:teslamate/components/info_card.dart';
 import 'package:teslamate/utils/routes.dart';
@@ -76,13 +76,13 @@ class ChargeScreen extends StatelessWidget {
                     future: charge.fetchMoreInfo(),
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
-                        final List<Series> data = charge.chargeDetails
+                        final List<SeriesData> data = charge.chargeDetails
                             .asMap()
                             .map((i, chargeDetail) {
                               return MapEntry(
                                   i,
-                                  Series(
-                                    x: i,
+                                  SeriesData(
+                                    x: chargeDetail.date,
                                     y: chargeDetail.chargePower,
                                   ));
                             })
@@ -94,9 +94,9 @@ class ChargeScreen extends StatelessWidget {
                           child: LineChart(data: data, id: 'Power'),
                         );
                       }
-                      return SizedBox(
+                      return const SizedBox(
                         height: 200,
-                        child: Text(charge.chargeId.toString()),
+                        child: null,
                       );
                     },
                   ),

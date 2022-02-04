@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:teslamate/classes/charge.dart';
-import 'package:teslamate/classes/drive.dart';
-import 'package:teslamate/components/charge_card.dart';
-import 'package:teslamate/components/drive_card.dart';
+import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
+import 'package:provider/provider.dart';
+import 'package:teslamate/classes/car.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
@@ -12,91 +11,51 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
-  late Future<List<Charge>> futureCharge;
-  late Future<List<Drive>> futureDrive;
-
   @override
   void initState() {
     super.initState();
-    futureCharge = fetchCharges();
-    futureDrive = fetchDrives();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
-        child: Container(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              Container(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "Charges",
-                  style: Theme.of(context).textTheme.headline5,
-                ),
-              ),
-              FutureBuilder<List<Charge>>(
-                future: fetchCharges(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return Column(
-                      children: [
-                        ChargeCard(
-                          charge: snapshot.data![0],
+        child: Consumer<Car>(
+          builder: (context, car, child) {
+            return Column(
+              children: [
+                Text(car.insideTemp),
+                Text(car.speed),
+                Text(car.isClimateOn),
+                Text(car.state),
+                Text(car.ltd),
+                Text(car.lng),
+                Text(car.heading.toString()),
+                SizedBox(
+                  height: 200,
+                  child: OSMFlutter(
+                    controller: car.map,
+                    trackMyPosition: false,
+                    initZoom: 16,
+                    minZoomLevel: 8,
+                    maxZoomLevel: 19,
+                    stepZoom: 1.0,
+                    onMapIsReady: (p0) => car.setMapIsReady(),
+                    showZoomController: true,
+                    showDefaultInfoWindow: true,
+                    markerOption: MarkerOption(
+                      defaultMarker: MarkerIcon(
+                        assetMarker: AssetMarker(
+                          image: const AssetImage('lib/assets/images/tesla.png'),
+                          color: Colors.grey[600],
                         ),
-                        ChargeCard(
-                          charge: snapshot.data![1],
-                        ),
-                        ChargeCard(
-                          charge: snapshot.data![2],
-                        ),
-                      ],
-                    );
-                  } else if (snapshot.hasError) {
-                    return Text('${snapshot.error}');
-                  }
-
-                  // By default, show a loading spinner.
-                  return const CircularProgressIndicator();
-                },
-              ),
-              Container(
-                margin: const EdgeInsets.only(top: 16),
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "Drives",
-                  style: Theme.of(context).textTheme.headline5,
-                ),
-              ),
-              FutureBuilder<List<Drive>>(
-                future: fetchDrives(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return Column(
-                      children: [
-                        DriveCard(
-                          drive: snapshot.data![0],
-                        ),
-                        DriveCard(
-                          drive: snapshot.data![1],
-                        ),
-                        DriveCard(
-                          drive: snapshot.data![2],
-                        ),
-                      ],
-                    );
-                  } else if (snapshot.hasError) {
-                    return Text('${snapshot.error}');
-                  }
-
-                  // By default, show a loading spinner.
-                  return const CircularProgressIndicator();
-                },
-              ),
-            ],
-          ),
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            );
+          },
         ),
       ),
     );
