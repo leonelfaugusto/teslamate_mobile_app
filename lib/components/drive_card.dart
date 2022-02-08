@@ -11,7 +11,7 @@ class DriveCard extends StatelessWidget {
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () => print("teste Drive"),
+        onTap: () {},
         child: Column(
           children: [
             ListTile(

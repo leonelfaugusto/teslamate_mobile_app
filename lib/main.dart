@@ -24,7 +24,7 @@ class App extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (context) => Car(id: 1),
+          create: (context) => Car(),
         ),
       ],
       child: MaterialApp(
@@ -40,9 +40,6 @@ class App extends StatelessWidget {
           RefreshLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
-        ],
-        supportedLocales: const [
-          Locale("pt", "pt_PT"),
         ],
       ),
     );

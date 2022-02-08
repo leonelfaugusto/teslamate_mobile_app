@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 /*
  * Package : mqtt_client
  * Author : S. Hamblett <steve.hamblett@linux.com>
@@ -7,6 +9,7 @@
 
 import 'dart:async';
 import 'dart:io';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:provider/provider.dart';
@@ -26,8 +29,17 @@ Future<MqttServerClient> connect(context) async {
   client.onSubscribed = onSubscribed;
   client.pongCallback = pong;
 
-  final connMess =
-      MqttConnectMessage().authenticateAs('leonel', '25802580Tks').withClientIdentifier('teslamate_companion').withWillQos(MqttQos.atLeastOnce);
+  var deviceInfo = DeviceInfoPlugin();
+  String? id = "teslamate_companion";
+  if (Platform.isIOS) {
+    var iosDeviceInfo = await deviceInfo.iosInfo;
+    id = iosDeviceInfo.identifierForVendor; // unique ID on iOS
+  } else {
+    var androidDeviceInfo = await deviceInfo.androidInfo;
+    id = androidDeviceInfo.androidId; // unique ID on Android
+  }
+
+  final connMess = MqttConnectMessage().authenticateAs('leonel', '25802580Tks').withClientIdentifier(id.toString()).withWillQos(MqttQos.atLeastOnce);
   print('EXAMPLE::Mosquitto client connecting....');
   client.connectionMessage = connMess;
 
@@ -78,6 +90,7 @@ Future<MqttServerClient> connect(context) async {
         break;
       case Topics.heading:
         car.setHeading(pt);
+        car.setHeadingRad(pt);
         break;
       default:
     }

@@ -76,7 +76,7 @@ class ChargeScreen extends StatelessWidget {
                     future: charge.fetchMoreInfo(),
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
-                        final List<SeriesData> data = charge.chargeDetails
+                        final List<SeriesData> data = charge.chargeDetails!
                             .asMap()
                             .map((i, chargeDetail) {
                               return MapEntry(

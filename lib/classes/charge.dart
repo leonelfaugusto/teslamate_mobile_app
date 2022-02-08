@@ -34,7 +34,7 @@ class Charge {
   final String address;
   final dynamic chargeEnergyAdded;
   final dynamic chargeenergyUsed;
-  List<ChargeDetail> chargeDetails;
+  List<ChargeDetail>? chargeDetails;
 
   Charge({
     required this.chargeId,
@@ -49,7 +49,7 @@ class Charge {
     required this.address,
     required this.chargeEnergyAdded,
     required this.chargeenergyUsed,
-    this.chargeDetails = const [],
+    this.chargeDetails,
   });
 
   factory Charge.fromJson(Map<String, dynamic> json) {
@@ -69,7 +69,7 @@ class Charge {
     );
   }
 
-  Future<List<ChargeDetail>> fetchMoreInfo() async {
+  Future<List<ChargeDetail>?> fetchMoreInfo() async {
     chargeDetails = await fetchChargeDetails(chargeId);
     return chargeDetails;
   }
