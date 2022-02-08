@@ -1,6 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
+import 'package:provider/provider.dart';
+import 'package:teslamate/classes/charge.dart';
+import 'package:teslamate/classes/charges.dart';
 import 'package:teslamate/screens/charges_screen.dart';
 import 'package:teslamate/screens/dashboard.dart';
 import 'package:teslamate/screens/drives_screen.dart';

@@ -1,25 +1,4 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:teslamate/classes/charge_detail.dart';
-
-Future<List<Charge>> fetchCharges() async {
-  final response = await http.get(Uri.parse('http://10.10.20.121:8080/api/v1/cars/1/charges'));
-  final List<Charge> charges = [];
-
-  if (response.statusCode == 200) {
-    // If the server did return a 200 OK response,
-    // then parse the JSON.
-    Map<String, dynamic> body = jsonDecode(response.body);
-    for (var charge in (body['data']['charges'] as List)) {
-      charges.add(Charge.fromJson(charge));
-    }
-    return charges;
-  } else {
-    // If the server did not return a 200 OK response,
-    // then throw an exception.
-    throw Exception('Failed to load charge');
-  }
-}
 
 class Charge {
   final int chargeId;

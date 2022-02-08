@@ -1,23 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-Future<List<Drive>> fetchDrives() async {
-  final response = await http.get(Uri.parse('http://10.10.20.121:8080/api/v1/cars/1/drives'));
-  final List<Drive> drives = [];
-
-  if (response.statusCode == 200) {
-    // If the server did return a 200 OK response,
-    // then parse the JSON.
-    Map<String, dynamic> body = jsonDecode(response.body);
-    body['data']['drives'].forEach((drive) => drives.add(Drive.fromJson(drive)));
-    return drives;
-  } else {
-    // If the server did not return a 200 OK response,
-    // then throw an exception.
-    throw Exception('Failed to load drives');
-  }
-}
-
 Future<Drive> fetchCharge() async {
   final response = await http.get(Uri.parse('http://10.10.20.121:8080/api/v1/cars/1/drives/35'));
 

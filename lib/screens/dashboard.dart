@@ -48,15 +48,14 @@ class _DashboardState extends State<Dashboard> {
                   ),
                 );
                 if (mapWrapperController.readyAndMounted) {
-                  mapWrapperController.controller?.moveAndRotate(lt, mapWrapperController.controller!.zoom, -car.heading);
+                  mapWrapperController.controller?.move(lt, mapWrapperController.controller!.zoom);
                 }
                 return FlutterMapWrapper(
                   wrapperController: mapWrapperController,
                   options: MapOptions(
                     center: lt,
-                    zoom: 18.0,
+                    zoom: 15.0,
                     maxZoom: 18,
-                    rotation: -car.heading,
                   ),
                   layers: [
                     TileLayerOptions(
@@ -106,10 +105,9 @@ class _DashboardState extends State<Dashboard> {
                             onTap: () {
                               if (mapWrapperController.readyAndMounted) {
                                 Car car = Provider.of<Car>(context, listen: false);
-                                mapWrapperController.controller?.moveAndRotate(
+                                mapWrapperController.controller?.move(
                                   LatLng(car.ltd, car.lng),
                                   mapWrapperController.controller!.zoom,
-                                  -car.heading,
                                 );
                               }
                             },

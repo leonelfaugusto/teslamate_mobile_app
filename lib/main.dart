@@ -1,10 +1,15 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/intl_standalone.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:teslamate/classes/car.dart';
+import 'package:teslamate/classes/charges.dart';
+import 'package:teslamate/classes/drives.dart';
 import 'package:teslamate/screens/charge_screen.dart';
 import 'package:teslamate/screens/home.dart';
 import 'package:teslamate/utils/routes.dart';
@@ -25,6 +30,12 @@ class App extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(
           create: (context) => Car(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => Charges(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => Drives(),
         ),
       ],
       child: MaterialApp(
