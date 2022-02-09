@@ -39,6 +39,10 @@ class Charges with ChangeNotifier {
     return [...charges];
   }
 
+  set items(List<Charge> c) {
+    charges = c;
+  }
+
   Charge getCharge(id) {
     return charges.firstWhere((charge) => charge.chargeId == id);
   }

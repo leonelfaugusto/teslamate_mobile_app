@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:mqtt_client/mqtt_client.dart';
-import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:teslamate/classes/loading.dart';
+import 'package:teslamate/classes/charges.dart';
+import 'package:teslamate/classes/drives.dart';
+import 'package:teslamate/classes/preferences.dart';
 import 'package:teslamate/screens/charges_screen.dart';
 import 'package:teslamate/screens/dashboard.dart';
 import 'package:teslamate/screens/drives_screen.dart';
@@ -19,9 +18,8 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-  late Future<bool> _prefsExist;
   int _selectedIndex = 0;
+  bool allDone = false;
   late String _title;
 
   static const List<String> _titleOptions = <String>[
@@ -43,12 +41,6 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     _title = _titleOptions.elementAt(0);
-    _prefsExist = _prefs.then((SharedPreferences prefs) {
-      /* prefs.remove('api');
-      prefs.remove('mqqt');
-      prefs.remove('prefsExist'); */
-      return prefs.getBool('prefsExist') ?? false;
-    });
     super.initState();
   }
 
@@ -59,35 +51,50 @@ class _HomeState extends State<Home> {
     });
   }
 
-  Future<Map<String, dynamic>> initStates() async {
-    final client = await connect(context);
-    final prefsExist = await _prefsExist;
-    return {
-      "client": client,
-      "prefsExist": prefsExist,
-    };
+  Future<bool> initStates() async {
+    MqttClientWrapper clientWrapper = Provider.of<MqttClientWrapper>(context, listen: false);
+    Preferences preferences = Provider.of<Preferences>(context, listen: false);
+    Charges charges = Provider.of<Charges>(context, listen: false);
+    Drives drives = Provider.of<Drives>(context, listen: false);
+    if (!clientWrapper.connected) {
+      await clientWrapper.connect(context);
+    }
+    if (!allDone) {
+      charges.items = [];
+      charges.page = 1;
+      drives.items = [];
+      drives.page = 1;
+      await fetchPreferences(context);
+      await fetchCharges(context);
+      await fetchDrives(context);
+    }
+    setState(() {
+      allDone = true;
+    });
+    return preferences.prefsExist;
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Map<String, dynamic>>(
+    return FutureBuilder<bool>(
       future: initStates(),
       builder: (context, snapshot) {
-        if (snapshot.hasData && snapshot.data?['prefsExist'] == true) {
+        if (snapshot.connectionState == ConnectionState.waiting && !allDone) {
+          return const Scaffold(
+              body: Center(
+                  child: Image(
+            image: AssetImage('lib/assets/images/logo_splash.png'),
+            height: 256,
+            width: 256,
+          )));
+        }
+        if (snapshot.data == true) {
           return Scaffold(
             appBar: AppBar(
               title: Text(_title),
-              bottom: PreferredSize(
-                preferredSize: const Size(double.infinity, 1.0),
-                child: Consumer<Loading>(
-                  builder: (context, loading, child) {
-                    return ProgressBar(isLoading: loading.isLoading);
-                  },
-                ),
-              ),
             ),
             body: Center(
-              child: _widgetOptions.elementAt(_selectedIndex),
+              child: snapshot.hasData ? _widgetOptions.elementAt(_selectedIndex) : null,
             ),
             bottomNavigationBar: BottomNavigationBar(
               items: <BottomNavigationBarItem>[
@@ -120,7 +127,7 @@ class _HomeState extends State<Home> {
             ),
           );
         } else {
-          return Scaffold(body: SafeArea(child: InitialPreferencesScreen()));
+          return const Scaffold(body: SafeArea(child: InitialPreferencesScreen()));
         }
       },
     );

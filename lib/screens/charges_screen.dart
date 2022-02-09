@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:teslamate/classes/charge.dart';
 import 'package:teslamate/classes/charges.dart';
-import 'package:teslamate/classes/loading.dart';
 import 'package:teslamate/components/charge_card.dart';
 
 class ChargesScreen extends StatefulWidget {
@@ -18,22 +17,16 @@ class _ChargesScreenState extends State<ChargesScreen> {
 
   void _onRefresh() async {
     Charges charges = Provider.of<Charges>(context, listen: false);
-    Loading loading = Provider.of<Loading>(context, listen: false);
-    loading.loading = true;
     charges.page = 1;
     charges.clearItems();
     await fetchCharges(context);
-    loading.loading = false;
     _refreshController.refreshCompleted();
   }
 
   void _onLoading() async {
     Charges charges = Provider.of<Charges>(context, listen: false);
-    Loading loading = Provider.of<Loading>(context, listen: false);
-    loading.loading = true;
     charges.page += 1;
     await fetchCharges(context);
-    loading.loading = false;
     _refreshController.loadComplete();
   }
 

@@ -39,6 +39,10 @@ class Drives with ChangeNotifier {
     return [...drives];
   }
 
+  set items(List<Drive> c) {
+    drives = c;
+  }
+
   void clearItems() {
     drives = [];
     notifyListeners();
