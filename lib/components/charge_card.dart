@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:teslamate/classes/charge.dart';
+import 'package:teslamate/classes/charges.dart';
 import 'package:teslamate/utils/routes.dart';
 
 class ChargeCard extends StatelessWidget {
-  final Charge charge;
-  const ChargeCard({Key? key, required this.charge}) : super(key: key);
+  final int index;
+  const ChargeCard({Key? key, required this.index}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    Charge charge = Provider.of<Charges>(context, listen: false).items[index];
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -16,7 +19,7 @@ class ChargeCard extends StatelessWidget {
           Navigator.pushNamed(
             context,
             Routes.charge,
-            arguments: charge,
+            arguments: index,
           );
         },
         child: Column(

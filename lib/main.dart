@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -10,14 +8,23 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:teslamate/classes/car.dart';
 import 'package:teslamate/classes/charges.dart';
 import 'package:teslamate/classes/drives.dart';
+import 'package:teslamate/classes/loading.dart';
 import 'package:teslamate/screens/charge_screen.dart';
 import 'package:teslamate/screens/home.dart';
 import 'package:teslamate/utils/routes.dart';
 
 void main() async {
+  FlutterNativeSplash.removeAfter(initialization);
   String locale = await findSystemLocale();
   Intl.defaultLocale = locale;
   runApp(const App());
+}
+
+void initialization(BuildContext context) async {
+  await Future.delayed(const Duration(milliseconds: 500));
+  // This is where you can initialize the resources needed by your app while
+  // the splash screen is displayed.  After this function completes, the
+  // splash screen will be removed.
 }
 
 class App extends StatelessWidget {
@@ -37,11 +44,14 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(
           create: (context) => Drives(),
         ),
+        ChangeNotifierProvider(
+          create: (context) => Loading(),
+        ),
       ],
       child: MaterialApp(
-        title: 'Teslamate Companion',
+        title: 'Teslamate',
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.deepOrange).copyWith(secondary: Colors.lightGreen),
+          brightness: Brightness.dark,
         ),
         routes: {
           Routes.home: (_) => const Home(),

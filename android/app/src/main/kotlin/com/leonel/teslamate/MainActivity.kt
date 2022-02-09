@@ -1,4 +1,4 @@
-package com.example.teslamate
+package com.leonel.teslamate
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -13,18 +13,22 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:teslamate/classes/car.dart';
 import 'package:teslamate/utils/mqqt_topics.dart';
-
-final client = MqttServerClient.withPort('10.10.20.151', 'myClient', 1883);
 
 var pongCount = 0; // Pong counter
 
 Future<MqttServerClient> connect(context) async {
+  final SharedPreferences _prefs = await SharedPreferences.getInstance();
+  final mqqt = _prefs.getString("mqtt");
+
+  MqttServerClient client = MqttServerClient.withPort("$mqqt", 'myClient', 1883);
+
   client.logging(on: false);
   client.setProtocolV31();
   client.keepAlivePeriod = 20;
-  client.onDisconnected = onDisconnected;
+  client.onDisconnected = () => onDisconnected(client);
   client.onConnected = onConnected;
   client.onSubscribed = onSubscribed;
   client.pongCallback = pong;
@@ -60,7 +64,6 @@ Future<MqttServerClient> connect(context) async {
     client.disconnect();
   }
 
-  print('EXAMPLE::Subscribing to all topics');
   for (var topic in Topics.topicsList) {
     client.subscribe(topic, MqttQos.atMostOnce);
   }
@@ -92,6 +95,12 @@ Future<MqttServerClient> connect(context) async {
         car.setHeading(pt);
         car.setHeadingRad(pt);
         break;
+      case Topics.batteryLevel:
+        car.setStateOfCharge(pt);
+        break;
+      case Topics.ratedBatteryRangeKm:
+        car.setBatteryRange(pt);
+        break;
       default:
     }
 
@@ -105,7 +114,7 @@ void onSubscribed(String topic) {
   print('EXAMPLE::Subscription confirmed for topic $topic');
 }
 
-void onDisconnected() {
+void onDisconnected(client) {
   print('EXAMPLE::OnDisconnected client callback - Client disconnection');
   if (client.connectionStatus!.disconnectionOrigin == MqttDisconnectionOrigin.solicited) {
     print('EXAMPLE::OnDisconnected callback is solicited, this is correct');

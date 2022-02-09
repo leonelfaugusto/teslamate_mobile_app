@@ -1,8 +1,12 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<List<ChargeDetail>> fetchChargeDetails(int id) async {
-  final response = await http.get(Uri.parse('http://10.10.20.121:8080/api/v1/cars/1/charges/$id'));
+  final SharedPreferences _prefs = await SharedPreferences.getInstance();
+  final api = _prefs.getString("api");
+  final carID = _prefs.getInt("car_id") ?? 1;
+  final response = await http.get(Uri.parse('$api/api/v1/cars/$carID/charges/$id'));
   final List<ChargeDetail> chargeDetails = [];
 
   if (response.statusCode == 200) {

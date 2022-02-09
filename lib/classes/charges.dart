@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:teslamate/classes/charge.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 Future fetchCharges(BuildContext context) async {
   Charges charges = Provider.of<Charges>(context, listen: false);
-  final response = await http.get(Uri.parse('http://10.10.20.121:8080/api/v1/cars/1/charges?show=${charges.show}&page=${charges.page}'));
+  final SharedPreferences _prefs = await SharedPreferences.getInstance();
+  final api = _prefs.getString("api");
+  final carID = _prefs.getInt("car_id") ?? 1;
+  final response = await http.get(Uri.parse('$api/api/v1/cars/$carID/charges?show=${charges.show}&page=${charges.page}'));
   final List<Charge> chargesToAdd = [];
 
   if (response.statusCode == 200) {
@@ -35,6 +39,10 @@ class Charges with ChangeNotifier {
     return [...charges];
   }
 
+  Charge getCharge(id) {
+    return charges.firstWhere((charge) => charge.chargeId == id);
+  }
+
   void clearItems() {
     charges = [];
     notifyListeners();
@@ -47,6 +55,11 @@ class Charges with ChangeNotifier {
 
   void addCharges(List<Charge> c) {
     charges.addAll(c);
+    notifyListeners();
+  }
+
+  void getMoreInfo(int index) async {
+    await items[index].fetchMoreInfo();
     notifyListeners();
   }
 }

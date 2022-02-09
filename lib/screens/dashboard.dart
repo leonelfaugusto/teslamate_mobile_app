@@ -5,8 +5,8 @@ import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:teslamate/classes/car.dart';
 import 'package:teslamate/components/info_card.dart';
-
-import '../components/map.dart';
+import 'package:teslamate/components/map.dart';
+import 'package:teslamate/components/soc_card.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
@@ -136,46 +136,38 @@ class _DashboardState extends State<Dashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder(
-        builder: (context, snapshot) {
-          return Consumer<Car>(
-            builder: (context, car, child) {
-              if (car.finish) {
-                return GridView.count(
-                  padding: const EdgeInsets.all(10),
-                  crossAxisCount: 2,
-                  children: [
-                    InfoCard(
-                      info: car.insideTemp.toString(),
+      body: Consumer<Car>(
+        builder: (context, car, child) {
+          return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  Container(
+                    alignment: Alignment.centerRight,
+                    child: Chip(
+                      label: Text(car.state),
                     ),
-                    InfoCard(
-                      info: car.speed.toString(),
-                    ),
-                    InfoCard(
-                      info: car.isClimateOn.toString(),
-                    ),
-                    InfoCard(
-                      info: car.state.toString(),
-                    ),
-                    InfoCard(
-                      onTap: onTap,
-                      info: car.ltd.toString(),
-                    ),
-                    InfoCard(
-                      onTap: onTap,
-                      info: car.lng.toString(),
-                    ),
-                    InfoCard(
-                      info: car.heading.toString(),
-                    ),
-                  ],
-                );
-              }
-              return const Text("data");
-            },
+                  ),
+                  SocCard(car: car),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      InfoCard(
+                        onTap: onTap,
+                        info: car.ltd.toString(),
+                      ),
+                      InfoCard(
+                        onTap: onTap,
+                        info: car.lng.toString(),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           );
         },
-        future: Provider.of<Car>(context, listen: false).refreshTasks(),
       ),
     );
   }

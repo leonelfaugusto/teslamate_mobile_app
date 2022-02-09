@@ -4,7 +4,6 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:teslamate/classes/drive.dart';
 import 'package:teslamate/classes/drives.dart';
 import 'package:teslamate/components/drive_card.dart';
-import 'package:teslamate/utils/routes.dart';
 
 class DrivesScreen extends StatefulWidget {
   const DrivesScreen({Key? key}) : super(key: key);
@@ -49,9 +48,7 @@ class _DrivesScreenState extends State<DrivesScreen> {
             controller: _refreshController,
             enablePullDown: true,
             enablePullUp: true,
-            header: const WaterDropMaterialHeader(
-              backgroundColor: RoutesColors.drive,
-            ),
+            header: const WaterDropMaterialHeader(),
             onRefresh: _onRefresh,
             onLoading: _onLoading,
             child: drives.items.isNotEmpty
