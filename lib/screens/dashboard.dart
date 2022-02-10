@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
-import 'package:teslamate/classes/car.dart';
+import 'package:teslamate/classes/car_status.dart';
 import 'package:teslamate/components/info_card.dart';
 import 'package:teslamate/components/map.dart';
 import 'package:teslamate/components/soc_card.dart';
@@ -32,14 +32,14 @@ class _DashboardState extends State<Dashboard> {
       builder: (context) {
         return Stack(
           children: [
-            Consumer<Car>(
-              builder: (context, car, child) {
-                LatLng lt = LatLng(car.ltd, car.lng);
+            Consumer<CarStatus>(
+              builder: (context, carStatus, child) {
+                LatLng lt = LatLng(carStatus.ltd, carStatus.lng);
                 Marker marker = Marker(
                   point: lt,
                   rotate: false,
                   builder: (ctx) => Transform.rotate(
-                    angle: car.headingRad,
+                    angle: carStatus.headingRad,
                     child: Icon(
                       CupertinoIcons.location_circle,
                       color: Colors.red[700],
@@ -104,9 +104,9 @@ class _DashboardState extends State<Dashboard> {
                             highlightColor: Colors.transparent,
                             onTap: () {
                               if (mapWrapperController.readyAndMounted) {
-                                Car car = Provider.of<Car>(context, listen: false);
+                                CarStatus carStatus = Provider.of<CarStatus>(context, listen: false);
                                 mapWrapperController.controller?.move(
-                                  LatLng(car.ltd, car.lng),
+                                  LatLng(carStatus.ltd, carStatus.lng),
                                   mapWrapperController.controller!.zoom,
                                 );
                               }
@@ -136,8 +136,8 @@ class _DashboardState extends State<Dashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Consumer<Car>(
-        builder: (context, car, child) {
+      body: Consumer<CarStatus>(
+        builder: (context, carStatus, child) {
           return SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -146,20 +146,20 @@ class _DashboardState extends State<Dashboard> {
                   Container(
                     alignment: Alignment.centerRight,
                     child: Chip(
-                      label: Text(car.state),
+                      label: Text(carStatus.state),
                     ),
                   ),
-                  SocCard(car: car),
+                  SocCard(carStatus: carStatus),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       InfoCard(
                         onTap: onTap,
-                        info: car.ltd.toString(),
+                        info: carStatus.ltd.toString(),
                       ),
                       InfoCard(
                         onTap: onTap,
-                        info: car.lng.toString(),
+                        info: carStatus.lng.toString(),
                       ),
                     ],
                   ),

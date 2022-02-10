@@ -1,6 +1,7 @@
 class Routes {
   static const home = '/';
   static const charge = '/charge';
+  static const settings = '/settings';
 }
 
 class RoutesTabNames {

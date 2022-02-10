@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:teslamate/classes/car_status.dart';
+import 'package:teslamate/classes/cars.dart';
 import 'package:teslamate/classes/charges.dart';
 import 'package:teslamate/classes/drives.dart';
 import 'package:teslamate/classes/preferences.dart';
@@ -7,6 +9,7 @@ import 'package:teslamate/screens/charges_screen.dart';
 import 'package:teslamate/screens/dashboard.dart';
 import 'package:teslamate/screens/drives_screen.dart';
 import 'package:teslamate/screens/initial_preferences_screen.dart';
+import 'package:teslamate/utils/custom_colors.dart';
 import 'package:teslamate/utils/mqtt_client_wrapper.dart';
 import 'package:teslamate/utils/routes.dart';
 
@@ -26,16 +29,12 @@ class _HomeState extends State<Home> {
     RoutesTabNames.dashboard,
     RoutesTabNames.charge,
     RoutesTabNames.drive,
-    RoutesTabNames.settings,
-    RoutesTabNames.statistics,
   ];
 
   static const List<Widget> _widgetOptions = <Widget>[
     Dashboard(),
     ChargesScreen(),
     DrivesScreen(),
-    InitialPreferencesScreen(),
-    Dashboard(),
   ];
 
   @override
@@ -45,10 +44,30 @@ class _HomeState extends State<Home> {
   }
 
   void _onItemTapped(int index) async {
+    var title = _titleOptions.elementAt(index);
     setState(() {
       _selectedIndex = index;
-      _title = _titleOptions.elementAt(index);
+      _title = title;
     });
+  }
+
+  changeCar(int carId) async {
+    Preferences preferences = Provider.of<Preferences>(context, listen: false);
+    MqttClientWrapper clientWrapper = Provider.of<MqttClientWrapper>(context, listen: false);
+    Charges charges = Provider.of<Charges>(context, listen: false);
+    Drives drives = Provider.of<Drives>(context, listen: false);
+    CarStatus carStatus = Provider.of<CarStatus>(context, listen: false);
+    await preferences.setCarId(carId);
+    carStatus.reset();
+    clientWrapper.client.disconnect();
+    charges.items = [];
+    charges.page = 1;
+    drives.items = [];
+    drives.page = 1;
+    await fetchCharges(context);
+    await fetchDrives(context);
+    clientWrapper.connect(context);
+    Navigator.pop(context);
   }
 
   Future<bool> initStates() async {
@@ -56,22 +75,31 @@ class _HomeState extends State<Home> {
     Preferences preferences = Provider.of<Preferences>(context, listen: false);
     Charges charges = Provider.of<Charges>(context, listen: false);
     Drives drives = Provider.of<Drives>(context, listen: false);
-    if (!clientWrapper.connected) {
-      await clientWrapper.connect(context);
-    }
-    if (!allDone) {
-      charges.items = [];
-      charges.page = 1;
-      drives.items = [];
-      drives.page = 1;
+    Cars cars = Provider.of<Cars>(context, listen: false);
+    await Future.delayed(const Duration(milliseconds: 500));
+    try {
       await fetchPreferences(context);
-      await fetchCharges(context);
-      await fetchDrives(context);
+      if (!clientWrapper.connected) {
+        await clientWrapper.connect(context);
+      }
+      if (!allDone) {
+        charges.items = [];
+        charges.page = 1;
+        drives.items = [];
+        drives.page = 1;
+        cars.items = [];
+        await fetchCars(context);
+        await fetchCharges(context);
+        await fetchDrives(context);
+      }
+
+      setState(() {
+        allDone = true;
+      });
+      return preferences.prefsExist;
+    } catch (e) {
+      return false;
     }
-    setState(() {
-      allDone = true;
-    });
-    return preferences.prefsExist;
   }
 
   @override
@@ -89,9 +117,62 @@ class _HomeState extends State<Home> {
           )));
         }
         if (snapshot.data == true) {
+          Preferences preferences = Provider.of<Preferences>(context, listen: false);
+          Cars cars = Provider.of<Cars>(context, listen: false);
           return Scaffold(
             appBar: AppBar(
               title: Text(_title),
+            ),
+            drawer: Drawer(
+              child: ListView(
+                // Important: Remove any padding from the ListView.
+                padding: EdgeInsets.zero,
+                children: [
+                  SizedBox(
+                    height: 150,
+                    child: DrawerHeader(
+                      decoration: const BoxDecoration(
+                        color: CustomColors.red,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            cars.getCar(preferences.carID).name,
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                          Text(
+                            cars.getCar(preferences.carID).vin,
+                            style: Theme.of(context).textTheme.labelSmall,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  if (cars.items.length > 1)
+                    ...cars.items.map(
+                      (car) => ListTile(
+                        leading: Icon(
+                          Icons.drive_eta,
+                          color: car.carID == preferences.carID ? CustomColors.red : null,
+                        ),
+                        title: Text(car.name),
+                        enabled: car.carID != preferences.carID,
+                        onTap: () async {
+                          await changeCar(car.carID);
+                        },
+                      ),
+                    ),
+                  if (cars.items.length > 1) const Divider(),
+                  ListTile(
+                    leading: const Icon(Icons.settings),
+                    title: const Text(RoutesTabNames.settings),
+                    onTap: () {
+                      Navigator.pushReplacementNamed(context, Routes.settings);
+                    },
+                  ),
+                ],
+              ),
             ),
             body: Center(
               child: snapshot.hasData ? _widgetOptions.elementAt(_selectedIndex) : null,
@@ -110,18 +191,9 @@ class _HomeState extends State<Home> {
                   icon: const Icon(Icons.swap_calls),
                   label: _titleOptions.elementAt(2),
                 ),
-                /* BottomNavigationBarItem(
-              icon: const Icon(Icons.stacked_bar_chart),
-              label: _titleOptions.elementAt(3),
-              backgroundColor: _colorOptions.elementAt(3),
-            ), */
-                BottomNavigationBarItem(
-                  icon: const Icon(Icons.settings),
-                  label: _titleOptions.elementAt(3),
-                ),
               ],
               currentIndex: _selectedIndex,
-              selectedItemColor: Theme.of(context).hintColor,
+              selectedItemColor: CustomColors.red,
               unselectedItemColor: Theme.of(context).hintColor,
               onTap: _onItemTapped,
             ),

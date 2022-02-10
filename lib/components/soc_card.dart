@@ -1,13 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:teslamate/classes/car.dart';
+import 'package:teslamate/classes/car_status.dart';
 
 class SocCard extends StatelessWidget {
-  final Car car;
+  final CarStatus carStatus;
 
   const SocCard({
     Key? key,
-    required this.car,
+    required this.carStatus,
   }) : super(key: key);
 
   @override
@@ -24,7 +24,7 @@ class SocCard extends StatelessWidget {
                 color: Colors.green[700],
                 backgroundColor: Colors.black.withOpacity(0.3),
                 minHeight: 10,
-                value: double.parse((car.stateOfCharge / 100).toString()),
+                value: double.parse((carStatus.stateOfCharge / 100).toString()),
                 semanticsLabel: 'Linear progress indicator',
               ),
             ),
@@ -37,7 +37,7 @@ class SocCard extends StatelessWidget {
                     children: [
                       Container(
                         margin: const EdgeInsets.only(right: 5),
-                        child: Icon(car.stateOfCharge < 80 ? CupertinoIcons.battery_25 : CupertinoIcons.battery_full),
+                        child: Icon(carStatus.stateOfCharge < 80 ? CupertinoIcons.battery_25 : CupertinoIcons.battery_full),
                       ),
                       Text(
                         "Estado da carga",
@@ -49,7 +49,7 @@ class SocCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        "${car.stateOfCharge}",
+                        "${carStatus.stateOfCharge}",
                         style: Theme.of(context).textTheme.labelLarge,
                       ),
                       Text(
@@ -61,7 +61,7 @@ class SocCard extends StatelessWidget {
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                       Text(
-                        car.batteryRange.toStringAsFixed(0),
+                        carStatus.batteryRange.toStringAsFixed(0),
                         style: Theme.of(context).textTheme.labelLarge,
                       ),
                       Text(

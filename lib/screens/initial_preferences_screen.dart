@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:teslamate/classes/preferences.dart';
 import 'package:teslamate/utils/mqtt_client_wrapper.dart';
 import 'package:teslamate/utils/routes.dart';
@@ -22,15 +21,14 @@ class _InitialPreferencesScreenState extends State<InitialPreferencesScreen> {
 
   Future onSave() async {
     _formKey.currentState?.save();
-    final SharedPreferences _prefs = await SharedPreferences.getInstance();
     MqttServerClient client = Provider.of<MqttClientWrapper>(context, listen: false).client;
+    Preferences preferences = Provider.of<Preferences>(context, listen: false);
     client.disconnect();
     if (data['api'] != null && data['mqtt'] != null) {
-      await _prefs.setString("api", data['api'] as String);
-      await _prefs.setString("mqtt", data['mqtt'] as String);
-      await _prefs.setBool("prefsExist", true);
+      await preferences.setApi(data['api'] ?? "");
+      await preferences.setMqqt(data["mqtt"] ?? "");
+      await preferences.setPrefsExist(true);
     }
-    await fetchPreferences(context);
     Navigator.of(context).pushReplacementNamed(Routes.home);
   }
 
@@ -38,7 +36,7 @@ class _InitialPreferencesScreenState extends State<InitialPreferencesScreen> {
   void initState() {
     Preferences preferences = Provider.of(context, listen: false);
     api = preferences.api;
-    mqtt = preferences.mqqt;
+    mqtt = preferences.mqtt;
     super.initState();
   }
 

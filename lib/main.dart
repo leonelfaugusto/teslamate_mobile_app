@@ -5,12 +5,14 @@ import 'package:intl/intl.dart';
 import 'package:intl/intl_standalone.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-import 'package:teslamate/classes/car.dart';
+import 'package:teslamate/classes/car_status.dart';
+import 'package:teslamate/classes/cars.dart';
 import 'package:teslamate/classes/charges.dart';
 import 'package:teslamate/classes/drives.dart';
 import 'package:teslamate/classes/preferences.dart';
 import 'package:teslamate/screens/charge_screen.dart';
 import 'package:teslamate/screens/home.dart';
+import 'package:teslamate/screens/settings_screen.dart';
 import 'package:teslamate/utils/mqtt_client_wrapper.dart';
 import 'package:teslamate/utils/routes.dart';
 
@@ -37,7 +39,10 @@ class App extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (context) => Car(),
+          create: (context) => Cars(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => CarStatus(),
         ),
         ChangeNotifierProvider(
           create: (context) => Charges(),
@@ -60,6 +65,7 @@ class App extends StatelessWidget {
         routes: {
           Routes.home: (_) => const Home(),
           Routes.charge: (_) => const ChargeScreen(),
+          Routes.settings: (_) => const SettingsScreen(),
         },
         localizationsDelegates: const [
           RefreshLocalizations.delegate,

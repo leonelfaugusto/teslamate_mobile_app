@@ -14,8 +14,8 @@ import 'package:flutter/material.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:teslamate/classes/car.dart';
+import 'package:teslamate/classes/car_status.dart';
+import 'package:teslamate/classes/preferences.dart';
 import 'package:teslamate/utils/mqqt_topics.dart';
 
 class MqttClientWrapper with ChangeNotifier {
@@ -24,10 +24,9 @@ class MqttClientWrapper with ChangeNotifier {
   bool connected = false;
 
   Future<MqttServerClient> connect(context) async {
-    final SharedPreferences _prefs = await SharedPreferences.getInstance();
-    final mqqt = _prefs.getString("mqtt");
+    Preferences preferences = Provider.of<Preferences>(context, listen: false);
 
-    client = MqttServerClient.withPort("$mqqt", 'myClient', 1883);
+    client = MqttServerClient.withPort(preferences.mqtt, 'myClient', preferences.mqttPort);
 
     client.logging(on: false);
     client.setProtocolV31();
@@ -47,8 +46,10 @@ class MqttClientWrapper with ChangeNotifier {
       id = androidDeviceInfo.androidId; // unique ID on Android
     }
 
-    final connMess =
-        MqttConnectMessage().authenticateAs('leonel', '25802580Tks').withClientIdentifier(id.toString()).withWillQos(MqttQos.atLeastOnce);
+    final connMess = MqttConnectMessage()
+        .authenticateAs(preferences.mqttUserName, preferences.mqttPassword)
+        .withClientIdentifier(id.toString())
+        .withWillQos(MqttQos.atLeastOnce);
     print('EXAMPLE::Mosquitto client connecting....');
     client.connectionMessage = connMess;
 
@@ -68,49 +69,47 @@ class MqttClientWrapper with ChangeNotifier {
     if (client.connectionStatus!.state == MqttConnectionState.connected) {
       print('EXAMPLE::Mosquitto client connected');
     } else {
-      print('EXAMPLE::ERROR Mosquitto client connection failed - disconnecting, status is ${client.connectionStatus}');
+      print('EXAMPLE::ERROR Mosquitto client connection failed - disconnecting, status is ${client.connectionStatus!.state}');
       client.disconnect();
       connected = false;
     }
-
-    for (var topic in Topics.topicsList) {
+    Topics topics = Topics(carID: preferences.carID);
+    var topicsList = topics.getTopicsList();
+    for (var topic in topicsList) {
       client.subscribe(topic, MqttQos.atMostOnce);
     }
 
     client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
       final recMess = c![0].payload as MqttPublishMessage;
       final pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-      Car car = Provider.of<Car>(context, listen: false);
-      switch (c[0].topic) {
-        case Topics.isClimateOn:
-          car.setIsClimateOn(pt);
-          break;
-        case Topics.insideTemp:
-          car.setInsideTemp(pt);
-          break;
-        case Topics.speed:
-          car.setSpeed(pt);
-          break;
-        case Topics.state:
-          car.setState(pt);
-          break;
-        case Topics.latitude:
-          car.setLtd(pt);
-          break;
-        case Topics.longitude:
-          car.setLng(pt);
-          break;
-        case Topics.heading:
-          car.setHeading(pt);
-          car.setHeadingRad(pt);
-          break;
-        case Topics.batteryLevel:
-          car.setStateOfCharge(pt);
-          break;
-        case Topics.ratedBatteryRangeKm:
-          car.setBatteryRange(pt);
-          break;
-        default:
+      CarStatus carStatus = Provider.of<CarStatus>(context, listen: false);
+
+      if (c[0].topic == topics.isClimateOn) {
+        carStatus.setIsClimateOn(pt);
+      }
+      if (c[0].topic == topics.insideTemp) {
+        carStatus.setInsideTemp(pt);
+      }
+      if (c[0].topic == topics.speed) {
+        carStatus.setSpeed(pt);
+      }
+      if (c[0].topic == topics.state) {
+        carStatus.setState(pt);
+      }
+      if (c[0].topic == topics.latitude) {
+        carStatus.setLtd(pt);
+      }
+      if (c[0].topic == topics.longitude) {
+        carStatus.setLng(pt);
+      }
+      if (c[0].topic == topics.heading) {
+        carStatus.setHeading(pt);
+      }
+      if (c[0].topic == topics.batteryLevel) {
+        carStatus.setStateOfCharge(pt);
+      }
+      if (c[0].topic == topics.ratedBatteryRangeKm) {
+        carStatus.setBatteryRange(pt);
       }
 
       print('EXAMPLE::Change notification:: topic is <${c[0].topic}>, payload is <-- $pt -->');

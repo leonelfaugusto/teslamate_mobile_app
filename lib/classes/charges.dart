@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:teslamate/classes/charge.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:teslamate/classes/preferences.dart';
 
 Future fetchCharges(BuildContext context) async {
   Charges charges = Provider.of<Charges>(context, listen: false);
-  final SharedPreferences _prefs = await SharedPreferences.getInstance();
-  final api = _prefs.getString("api");
-  final carID = _prefs.getInt("car_id") ?? 1;
-  final response = await http.get(Uri.parse('$api/api/v1/cars/$carID/charges?show=${charges.show}&page=${charges.page}'));
+  Preferences preferences = Provider.of<Preferences>(context, listen: false);
+  final response = await http.get(Uri.parse('${preferences.api}/api/v1/cars/${preferences.carID}/charges?show=${charges.show}&page=${charges.page}'));
   final List<Charge> chargesToAdd = [];
 
   if (response.statusCode == 200) {
@@ -21,8 +19,8 @@ Future fetchCharges(BuildContext context) async {
       for (var charge in (body['data']['charges'] as List)) {
         chargesToAdd.add(Charge.fromJson(charge));
       }
-      charges.addCharges(chargesToAdd);
     }
+    charges.addCharges(chargesToAdd);
   } else {
     // If the server did not return a 200 OK response,
     // then throw an exception.
