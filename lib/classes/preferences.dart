@@ -11,6 +11,9 @@ Future<void> fetchPreferences(context) async {
     preferences.api = _prefs.getString("api") ?? "";
     preferences.carID = _prefs.getInt("car_id") ?? 1;
     preferences.prefsExist = _prefs.getBool("prefsExist") ?? false;
+    preferences.mqttIsAnonymous = _prefs.getBool("mqttIsAnonymous") ?? true;
+    preferences.mqttUsername = _prefs.getString("mqttUsername") ?? "";
+    preferences.mqttPassword = _prefs.getString("mqttPassword") ?? "";
   } catch (e) {
     throw Exception(e);
   }
@@ -19,8 +22,9 @@ Future<void> fetchPreferences(context) async {
 class Preferences with ChangeNotifier {
   String mqtt = "";
   int mqttPort = 1883;
-  String mqttUserName = "leonel";
-  String mqttPassword = '25802580Tks';
+  String mqttUsername = "";
+  String mqttPassword = "";
+  bool mqttIsAnonymous = true;
   String api = "";
   int carID = 1;
   bool prefsExist = false;
@@ -35,6 +39,24 @@ class Preferences with ChangeNotifier {
     final SharedPreferences _prefs = await SharedPreferences.getInstance();
     await _prefs.setInt("mqttPort", port);
     mqttPort = port;
+  }
+
+  Future<void> setMqttIsAnonymous(bool isAnonymous) async {
+    final SharedPreferences _prefs = await SharedPreferences.getInstance();
+    await _prefs.setBool("mqttIsAnonymous", isAnonymous);
+    mqttIsAnonymous = isAnonymous;
+  }
+
+  Future<void> setMqttUsername(String username) async {
+    final SharedPreferences _prefs = await SharedPreferences.getInstance();
+    await _prefs.setString("mqttUsername", username);
+    mqttUsername = username;
+  }
+
+  Future<void> setMqttPassword(String password) async {
+    final SharedPreferences _prefs = await SharedPreferences.getInstance();
+    await _prefs.setString("mqttPassword", password);
+    mqttPassword = password;
   }
 
   Future<void> setApi(String url) async {

@@ -46,10 +46,11 @@ class MqttClientWrapper with ChangeNotifier {
       id = androidDeviceInfo.androidId; // unique ID on Android
     }
 
-    final connMess = MqttConnectMessage()
-        .authenticateAs(preferences.mqttUserName, preferences.mqttPassword)
-        .withClientIdentifier(id.toString())
-        .withWillQos(MqttQos.atLeastOnce);
+    final connMess = MqttConnectMessage();
+    if (!preferences.mqttIsAnonymous) {
+      connMess.authenticateAs(preferences.mqttUsername, preferences.mqttPassword);
+    }
+    connMess.withClientIdentifier(id.toString()).withWillQos(MqttQos.atLeastOnce);
     print('EXAMPLE::Mosquitto client connecting....');
     client.connectionMessage = connMess;
 

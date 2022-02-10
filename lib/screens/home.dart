@@ -8,7 +8,7 @@ import 'package:teslamate/classes/preferences.dart';
 import 'package:teslamate/screens/charges_screen.dart';
 import 'package:teslamate/screens/dashboard.dart';
 import 'package:teslamate/screens/drives_screen.dart';
-import 'package:teslamate/screens/initial_preferences_screen.dart';
+import 'package:teslamate/screens/settings_screen.dart';
 import 'package:teslamate/utils/custom_colors.dart';
 import 'package:teslamate/utils/mqtt_client_wrapper.dart';
 import 'package:teslamate/utils/routes.dart';
@@ -199,7 +199,7 @@ class _HomeState extends State<Home> {
             ),
           );
         } else {
-          return const Scaffold(body: SafeArea(child: InitialPreferencesScreen()));
+          return const SettingsScreen();
         }
       },
     );
