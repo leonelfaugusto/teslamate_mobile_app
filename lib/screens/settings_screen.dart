@@ -75,6 +75,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   initialValue: api,
                   decoration: const InputDecoration(
                     labelText: 'API',
+                    focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: CustomColors.red)),
+                    floatingLabelStyle: TextStyle(color: CustomColors.red),
                   ),
                   onSaved: (newValue) {
                     data['api'] = newValue;
@@ -93,6 +95,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           initialValue: mqtt,
                           decoration: const InputDecoration(
                             labelText: 'MQTT url',
+                            focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: CustomColors.red)),
+                            floatingLabelStyle: TextStyle(color: CustomColors.red),
                           ),
                           onSaved: (newValue) {
                             data['mqtt'] = newValue;
@@ -110,6 +114,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           initialValue: mqttPort.toString(),
                           decoration: const InputDecoration(
                             labelText: 'Port',
+                            focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: CustomColors.red)),
+                            floatingLabelStyle: TextStyle(color: CustomColors.red),
                           ),
                           onSaved: (newValue) {
                             data['mqttPort'] = newValue;
@@ -146,6 +152,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             initialValue: username,
                             decoration: const InputDecoration(
                               labelText: 'Username',
+                              focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: CustomColors.red)),
+                              floatingLabelStyle: TextStyle(color: CustomColors.red),
                             ),
                             onSaved: (newValue) {
                               data['username'] = newValue;
@@ -163,6 +171,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             initialValue: password,
                             decoration: const InputDecoration(
                               labelText: 'Password',
+                              focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: CustomColors.red)),
+                              floatingLabelStyle: TextStyle(color: CustomColors.red),
                             ),
                             onSaved: (newValue) {
                               data['password'] = newValue;
