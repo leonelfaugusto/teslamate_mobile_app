@@ -37,7 +37,7 @@ class SocCard extends StatelessWidget {
                     children: [
                       Container(
                         margin: const EdgeInsets.only(right: 5),
-                        child: Icon(carStatus.stateOfCharge < 80 ? CupertinoIcons.battery_25 : CupertinoIcons.battery_full),
+                        child: Icon(carStatus.getBatteryChargeIcon()),
                       ),
                       Text(
                         "Estado da carga",

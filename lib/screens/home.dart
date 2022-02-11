@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:teslamate/classes/car_status.dart';
@@ -43,7 +44,7 @@ class _HomeState extends State<Home> {
     super.initState();
   }
 
-  void _onItemTapped(int index) async {
+  void _onItemTapped(int index) {
     var title = _titleOptions.elementAt(index);
     setState(() {
       _selectedIndex = index;
@@ -118,6 +119,7 @@ class _HomeState extends State<Home> {
         }
         if (snapshot.data == true) {
           Preferences preferences = Provider.of<Preferences>(context, listen: false);
+          CarStatus carStatus = Provider.of<CarStatus>(context, listen: false);
           Cars cars = Provider.of<Cars>(context, listen: false);
           return Scaffold(
             appBar: AppBar(
@@ -145,6 +147,10 @@ class _HomeState extends State<Home> {
                             cars.getCar(preferences.carID).vin,
                             style: Theme.of(context).textTheme.labelSmall,
                           ),
+                          Text(
+                            "${carStatus.odometer}Km",
+                            style: Theme.of(context).textTheme.labelSmall,
+                          ),
                         ],
                       ),
                     ),
@@ -153,7 +159,7 @@ class _HomeState extends State<Home> {
                     ...cars.items.map(
                       (car) => ListTile(
                         leading: Icon(
-                          Icons.drive_eta,
+                          CupertinoIcons.car_detailed,
                           color: car.carID == preferences.carID ? CustomColors.red : null,
                         ),
                         title: Text(car.name),
@@ -184,7 +190,7 @@ class _HomeState extends State<Home> {
                   label: _titleOptions.elementAt(0),
                 ),
                 BottomNavigationBarItem(
-                  icon: const Icon(Icons.bolt),
+                  icon: const Icon(Icons.ev_station),
                   label: _titleOptions.elementAt(1),
                 ),
                 BottomNavigationBarItem(

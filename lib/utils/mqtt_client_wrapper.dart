@@ -91,6 +91,9 @@ class MqttClientWrapper with ChangeNotifier {
       if (c[0].topic == topics.insideTemp) {
         carStatus.setInsideTemp(pt);
       }
+      if (c[0].topic == topics.outsideTemp) {
+        carStatus.setOutsideTemp(pt);
+      }
       if (c[0].topic == topics.speed) {
         carStatus.setSpeed(pt);
       }
@@ -111,6 +114,33 @@ class MqttClientWrapper with ChangeNotifier {
       }
       if (c[0].topic == topics.ratedBatteryRangeKm) {
         carStatus.setBatteryRange(pt);
+      }
+      if (c[0].topic == topics.chargerPower) {
+        carStatus.setChargingPower(pt);
+      }
+      if (c[0].topic == topics.chargeEnergyAdded) {
+        carStatus.setChargeEnergyAdded(pt);
+      }
+      if (c[0].topic == topics.timeToFullCharge) {
+        carStatus.setTimeToFullCharge(pt);
+      }
+      if (c[0].topic == topics.geofence) {
+        carStatus.setGeofence(pt);
+      }
+      if (c[0].topic == topics.shiftState) {
+        carStatus.setShiftState(pt);
+      }
+      if (c[0].topic == topics.sentryMode) {
+        carStatus.setSentryMode(pt);
+      }
+      if (c[0].topic == topics.pluggedIn) {
+        carStatus.setPluggedIn(pt);
+      }
+      if (c[0].topic == topics.scheduledChargingStartTime) {
+        carStatus.setScheduledChargingStartTime(pt);
+      }
+      if (c[0].topic == topics.odometer) {
+        carStatus.setOdometer(pt);
       }
 
       print('EXAMPLE::Change notification:: topic is <${c[0].topic}>, payload is <-- $pt -->');
