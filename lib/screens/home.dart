@@ -13,6 +13,7 @@ import 'package:teslamate/screens/settings_screen.dart';
 import 'package:teslamate/utils/custom_colors.dart';
 import 'package:teslamate/utils/mqtt_client_wrapper.dart';
 import 'package:teslamate/utils/routes.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -26,11 +27,7 @@ class _HomeState extends State<Home> {
   bool allDone = false;
   late String _title;
 
-  static const List<String> _titleOptions = <String>[
-    RoutesTabNames.dashboard,
-    RoutesTabNames.charge,
-    RoutesTabNames.drive,
-  ];
+  late List<String> _titleOptions;
 
   static const List<Widget> _widgetOptions = <Widget>[
     Dashboard(),
@@ -39,9 +36,14 @@ class _HomeState extends State<Home> {
   ];
 
   @override
-  void initState() {
+  void didChangeDependencies() {
+    _titleOptions = <String>[
+      AppLocalizations.of(context)!.home,
+      AppLocalizations.of(context)!.charges,
+      AppLocalizations.of(context)!.drives,
+    ];
     _title = _titleOptions.elementAt(0);
-    super.initState();
+    super.didChangeDependencies();
   }
 
   void _onItemTapped(int index) {
@@ -184,7 +186,7 @@ class _HomeState extends State<Home> {
                   if (cars.items.length > 1) const Divider(),
                   ListTile(
                     leading: const Icon(Icons.settings),
-                    title: const Text(RoutesTabNames.settings),
+                    title: Text(AppLocalizations.of(context)!.settings),
                     onTap: () {
                       Navigator.pushReplacementNamed(context, Routes.settings);
                     },

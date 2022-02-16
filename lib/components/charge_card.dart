@@ -25,9 +25,9 @@ class ChargeCard extends StatelessWidget {
         child: Column(
           children: [
             ListTile(
-                title: Text(DateFormat("d MMMM y", "pt").format(charge.startDate)),
+                title: Text(DateFormat("d MMMM y").format(charge.startDate)),
                 subtitle: Text(
-                  "${DateFormat("HH:mm", "pt").format(charge.startDate)} - ${DateFormat("HH:mm", "pt").format(charge.endDate)}",
+                  "${DateFormat("HH:mm").format(charge.startDate)} - ${DateFormat("HH:mm").format(charge.endDate)}",
                   style: TextStyle(color: Colors.black.withOpacity(0.6)),
                 ),
                 trailing: Column(

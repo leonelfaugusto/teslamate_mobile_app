@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:teslamate/classes/car_status.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SocCard extends StatelessWidget {
   final CarStatus carStatus;
@@ -39,7 +40,7 @@ class SocCard extends StatelessWidget {
                         child: Icon(carStatus.getBatteryChargeIcon()),
                       ),
                       Text(
-                        "Estado da carga",
+                        AppLocalizations.of(context)!.stateOfCharge,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
@@ -64,7 +65,7 @@ class SocCard extends StatelessWidget {
                         style: Theme.of(context).textTheme.labelLarge,
                       ),
                       Text(
-                        " Km",
+                        "Km",
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],

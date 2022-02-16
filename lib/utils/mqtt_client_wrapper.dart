@@ -1,12 +1,5 @@
 // ignore_for_file: avoid_print
 
-/*
- * Package : mqtt_client
- * Author : S. Hamblett <steve.hamblett@linux.com>
- * Date   : 31/05/2017
- * Copyright :  S.Hamblett
- */
-
 import 'dart:async';
 import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -17,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:teslamate/classes/car_status.dart';
 import 'package:teslamate/classes/preferences.dart';
 import 'package:teslamate/utils/mqqt_topics.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MqttClientWrapper with ChangeNotifier {
   int pongCount = 0;
@@ -40,10 +34,10 @@ class MqttClientWrapper with ChangeNotifier {
     String? id = "teslamate_companion";
     if (Platform.isIOS) {
       var iosDeviceInfo = await deviceInfo.iosInfo;
-      id = iosDeviceInfo.identifierForVendor; // unique ID on iOS
+      id = iosDeviceInfo.identifierForVendor;
     } else {
       var androidDeviceInfo = await deviceInfo.androidInfo;
-      id = androidDeviceInfo.androidId; // unique ID on Android
+      id = androidDeviceInfo.androidId;
     }
 
     final connMess = MqttConnectMessage();
@@ -99,6 +93,33 @@ class MqttClientWrapper with ChangeNotifier {
       }
       if (c[0].topic == topics.state) {
         carStatus.setState(pt);
+        var value = pt;
+        switch (pt) {
+          case "asleep":
+            value = AppLocalizations.of(context)!.asleep;
+            break;
+          case "driving":
+            value = AppLocalizations.of(context)!.driving;
+            break;
+          case "online":
+            value = AppLocalizations.of(context)!.online;
+            break;
+          case "charging":
+            value = AppLocalizations.of(context)!.charging;
+            break;
+          case "updating":
+            value = AppLocalizations.of(context)!.updating;
+            break;
+          case "offline":
+            value = AppLocalizations.of(context)!.offline;
+            break;
+          case "suspended":
+            value = AppLocalizations.of(context)!.suspended;
+            break;
+          default:
+            value = pt;
+        }
+        carStatus.setRealState(value);
       }
       if (c[0].topic == topics.latitude) {
         carStatus.setLtd(pt);
@@ -128,7 +149,20 @@ class MqttClientWrapper with ChangeNotifier {
         carStatus.setGeofence(pt);
       }
       if (c[0].topic == topics.shiftState) {
-        carStatus.setShiftState(pt);
+        var value = pt;
+        switch (pt) {
+          case "D":
+          case "R":
+            value = pt;
+            break;
+          case "P":
+            value = AppLocalizations.of(context)!.parked;
+            break;
+          default:
+            value = AppLocalizations.of(context)!.parked;
+            break;
+        }
+        carStatus.setShiftState(value);
       }
       if (c[0].topic == topics.sentryMode) {
         carStatus.setSentryMode(pt);
