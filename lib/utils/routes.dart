@@ -6,14 +6,6 @@ class Routes {
   static const settings = '/settings';
 }
 
-class RoutesTabNames {
-  static const dashboard = 'Dashboard';
-  static const charge = 'Carregamentos';
-  static const drive = 'Percursos';
-  static const statistics = 'Estatísticas';
-  static const settings = 'Definições';
-}
-
 Route createRoute(Widget page) {
   return PageRouteBuilder(
     pageBuilder: (context, animation, secondaryAnimation) => page,

@@ -36,5 +36,11 @@
     "lastCharges": "Últimos carregamentos",
     "@lastCharges": {},
     "lastDrives": "Últimos percursos",
-    "@lastDrives": {}
+    "@lastDrives": {},
+    "stateOfCharge": "Estado da carga",
+    "@stateOfCharge": {},
+    "home": "Dashboard",
+    "@home": {},
+    "settings": "Definições",
+    "@settings": {}
 }

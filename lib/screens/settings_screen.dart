@@ -5,6 +5,7 @@ import 'package:teslamate/screens/home.dart';
 import 'package:teslamate/utils/custom_colors.dart';
 import 'package:teslamate/utils/mqtt_client_wrapper.dart';
 import 'package:teslamate/utils/routes.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -74,7 +75,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text(RoutesTabNames.settings)),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.settings)),
       body: SingleChildScrollView(
         child: Container(
           padding: const EdgeInsets.all(16),
