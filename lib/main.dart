@@ -15,6 +15,7 @@ import 'package:teslamate/screens/home.dart';
 import 'package:teslamate/screens/settings_screen.dart';
 import 'package:teslamate/utils/mqtt_client_wrapper.dart';
 import 'package:teslamate/utils/routes.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() async {
   FlutterNativeSplash.removeAfter(initialization);
@@ -68,10 +69,13 @@ class App extends StatelessWidget {
           Routes.settings: (_) => const SettingsScreen(),
         },
         localizationsDelegates: const [
+          AppLocalizations.delegate,
           RefreshLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
         ],
+        supportedLocales: AppLocalizations.supportedLocales,
       ),
     );
   }

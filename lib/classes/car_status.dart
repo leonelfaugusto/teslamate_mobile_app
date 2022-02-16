@@ -4,6 +4,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 class CarStatus with ChangeNotifier {
   bool isClimateOn = false;
   String state = 'online';
+  String realState = 'Online';
   double insideTemp = 0.0;
   double outsideTemp = 0.0;
   int speed = 0;
@@ -14,7 +15,7 @@ class CarStatus with ChangeNotifier {
   int stateOfCharge = 0;
   double batteryRange = 0;
   String geofence = "";
-  String shiftState = "Estacionado";
+  String shiftState = "";
   bool sentryMode = false;
   int odometer = 0;
 
@@ -24,11 +25,14 @@ class CarStatus with ChangeNotifier {
   bool pluggedIn = false;
   DateTime scheduledChargingStartTime = DateTime.now();
 
+  late BuildContext context;
+
   CarStatus();
 
   void reset() {
     isClimateOn = false;
     state = 'online';
+    realState = 'Online';
     insideTemp = 0.0;
     outsideTemp = 0.0;
     speed = 0;
@@ -42,7 +46,7 @@ class CarStatus with ChangeNotifier {
     chargeEnergyAdded = 0;
     timeToFullCharge = "";
     geofence = "";
-    shiftState = "Estacionado";
+    shiftState = "";
     sentryMode = false;
     pluggedIn = false;
     scheduledChargingStartTime = DateTime.now();
@@ -73,25 +77,8 @@ class CarStatus with ChangeNotifier {
     notifyListeners();
   }
 
-  get realState {
-    switch (state) {
-      case "asleep":
-        return "A dormir";
-      case "driving":
-        return "Em movimento";
-      case "online":
-        return "Online";
-      case "charging":
-        return "A carregar";
-      case "Updating":
-        return "A atualizar";
-      case "offline":
-        return "Offline";
-      case "suspended":
-        return "A adormecer";
-      default:
-        return state;
-    }
+  void setRealState(String value) {
+    realState = value;
   }
 
   void setInsideTemp(String value) {
@@ -176,18 +163,7 @@ class CarStatus with ChangeNotifier {
   }
 
   void setShiftState(String value) {
-    switch (value) {
-      case "D":
-      case "R":
-        shiftState = value;
-        break;
-      case "P":
-        shiftState = "Estacionado";
-        break;
-      default:
-        shiftState = "Estacionado";
-        break;
-    }
+    shiftState = value;
     notifyListeners();
   }
 

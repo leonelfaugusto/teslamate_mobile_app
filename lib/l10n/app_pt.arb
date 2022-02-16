@@ -1,0 +1,10 @@
+{
+    "parked": "Estacionado",
+    "@parked": {
+        "description": "Carro estacionado"
+    },
+    "online": "Online",
+    "@online" : {
+        "description": "Estado online"
+    }
+}
