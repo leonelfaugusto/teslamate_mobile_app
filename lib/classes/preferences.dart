@@ -17,6 +17,7 @@ Future<void> fetchPreferences(context) async {
     preferences.apiUsername = _prefs.getString("wwwUsername") ?? "";
     preferences.apiPassword = _prefs.getString("wwwPassword") ?? "";
     preferences.isApiProtected = _prefs.getBool("isApiProtected") ?? false;
+    preferences.useMqtt = _prefs.getBool("useMqtt") ?? false;
   } catch (e) {
     throw Exception(e);
   }
@@ -34,6 +35,7 @@ class Preferences with ChangeNotifier {
   String api = "";
   int carID = 1;
   bool prefsExist = false;
+  bool useMqtt = false;
 
   Future<void> setMqqt(String url) async {
     final SharedPreferences _prefs = await SharedPreferences.getInstance();
@@ -99,5 +101,11 @@ class Preferences with ChangeNotifier {
     final SharedPreferences _prefs = await SharedPreferences.getInstance();
     await _prefs.setBool("prefsExist", exist);
     prefsExist = exist;
+  }
+
+  Future<void> setUseMqttt(bool use) async {
+    final SharedPreferences _prefs = await SharedPreferences.getInstance();
+    await _prefs.setBool("useMqtt", use);
+    useMqtt = use;
   }
 }

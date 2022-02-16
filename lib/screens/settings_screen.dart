@@ -26,14 +26,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late String wwwusername;
   late String wwwpassword;
   late String api;
+  late bool useMqtt;
 
   Future onSave() async {
     _formKey.currentState?.save();
     MqttClientWrapper clientWapper = Provider.of<MqttClientWrapper>(context, listen: false);
     Preferences preferences = Provider.of<Preferences>(context, listen: false);
     if (clientWapper.connected) clientWapper.client.disconnect();
-    if (data['api'] != null && data['mqtt'] != null && data['mqttPort'] != null) {
+    if (data['api'] != null) {
       await preferences.setApi(data['api'] ?? "");
+      await preferences.setIsApiProtected(isApiProtected);
+      if (isApiProtected && data['wwwpassword'] != null && data['wwwusername'] != null) {
+        await preferences.setApiUsername(data['wwwusername'] ?? "");
+        await preferences.setApiPassword(data['wwwpassword'] ?? "");
+      }
+      await preferences.setPrefsExist(true);
+    }
+    await preferences.setUseMqttt(useMqtt);
+    if (useMqtt && data["mqtt"] != null && data['mqttPort'] != null) {
       await preferences.setMqqt(data["mqtt"] ?? "");
       await preferences.setMqqtPort(int.parse(data["mqttPort"] ?? ""));
       await preferences.setMqttIsAnonymous(!isAnonymous);
@@ -41,12 +51,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         await preferences.setMqttUsername(data['username'] ?? "");
         await preferences.setMqttPassword(data['password'] ?? "");
       }
-      await preferences.setIsApiProtected(isApiProtected);
-      if (isApiProtected && data['wwwpassword'] != null && data['wwwusername'] != null) {
-        await preferences.setApiUsername(data['wwwusername'] ?? "");
-        await preferences.setApiPassword(data['wwwpassword'] ?? "");
-      }
-      await preferences.setPrefsExist(true);
     }
     Navigator.of(context).pushReplacement(createRoute(const Home()));
   }
@@ -63,6 +67,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     password = preferences.mqttPassword;
     wwwusername = preferences.apiUsername;
     wwwpassword = preferences.apiPassword;
+    useMqtt = preferences.useMqtt;
     super.initState();
   }
 
@@ -154,108 +159,129 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ],
                   ),
                 Container(margin: const EdgeInsets.only(top: 40)),
-                Text(
-                  "MQTT options",
-                  style: Theme.of(context).textTheme.headline6,
-                ),
                 Row(
                   children: [
-                    Flexible(
-                      flex: 2,
-                      child: Container(
-                        margin: const EdgeInsets.only(right: 2),
-                        child: TextFormField(
-                          enableSuggestions: false,
-                          autocorrect: false,
-                          keyboardType: TextInputType.url,
-                          initialValue: mqtt,
-                          decoration: const InputDecoration(
-                            labelText: 'MQTT url',
-                            focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: CustomColors.red)),
-                            floatingLabelStyle: TextStyle(color: CustomColors.red),
-                          ),
-                          onSaved: (newValue) {
-                            data['mqtt'] = newValue;
-                          },
-                        ),
-                      ),
-                    ),
-                    Flexible(
-                      child: Container(
-                        margin: const EdgeInsets.only(left: 2),
-                        child: TextFormField(
-                          enableSuggestions: false,
-                          autocorrect: false,
-                          keyboardType: TextInputType.number,
-                          initialValue: mqttPort.toString(),
-                          decoration: const InputDecoration(
-                            labelText: 'Port',
-                            focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: CustomColors.red)),
-                            floatingLabelStyle: TextStyle(color: CustomColors.red),
-                          ),
-                          onSaved: (newValue) {
-                            data['mqttPort'] = newValue;
-                          },
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-                Row(
-                  children: [
-                    const Text("MQTT com login"),
+                    const Text("Usar MQTT (opcional)"),
                     Checkbox(
                       checkColor: Colors.white,
                       fillColor: MaterialStateProperty.resolveWith((states) => CustomColors.red),
-                      value: isAnonymous,
+                      value: useMqtt,
                       onChanged: (bool? value) {
                         setState(() {
-                          isAnonymous = value!;
+                          useMqtt = value!;
                         });
                       },
                     ),
                   ],
                 ),
-                if (isAnonymous)
-                  Row(
+                if (useMqtt)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Flexible(
-                        child: Container(
-                          margin: const EdgeInsets.only(right: 2),
-                          child: TextFormField(
-                            enableSuggestions: false,
-                            autocorrect: false,
-                            initialValue: username,
-                            decoration: const InputDecoration(
-                              labelText: 'Username',
-                              focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: CustomColors.red)),
-                              floatingLabelStyle: TextStyle(color: CustomColors.red),
-                            ),
-                            onSaved: (newValue) {
-                              data['username'] = newValue;
-                            },
-                          ),
-                        ),
+                      Text(
+                        "MQTT options",
+                        style: Theme.of(context).textTheme.headline6,
                       ),
-                      Flexible(
-                        child: Container(
-                          margin: const EdgeInsets.only(left: 2),
-                          child: TextFormField(
-                            obscureText: true,
-                            enableSuggestions: false,
-                            autocorrect: false,
-                            initialValue: password,
-                            decoration: const InputDecoration(
-                              labelText: 'Password',
-                              focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: CustomColors.red)),
-                              floatingLabelStyle: TextStyle(color: CustomColors.red),
+                      Row(
+                        children: [
+                          Flexible(
+                            flex: 2,
+                            child: Container(
+                              margin: const EdgeInsets.only(right: 2),
+                              child: TextFormField(
+                                enableSuggestions: false,
+                                autocorrect: false,
+                                keyboardType: TextInputType.url,
+                                initialValue: mqtt,
+                                decoration: const InputDecoration(
+                                  labelText: 'MQTT url',
+                                  focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: CustomColors.red)),
+                                  floatingLabelStyle: TextStyle(color: CustomColors.red),
+                                ),
+                                onSaved: (newValue) {
+                                  data['mqtt'] = newValue;
+                                },
+                              ),
                             ),
-                            onSaved: (newValue) {
-                              data['password'] = newValue;
+                          ),
+                          Flexible(
+                            child: Container(
+                              margin: const EdgeInsets.only(left: 2),
+                              child: TextFormField(
+                                enableSuggestions: false,
+                                autocorrect: false,
+                                keyboardType: TextInputType.number,
+                                initialValue: mqttPort.toString(),
+                                decoration: const InputDecoration(
+                                  labelText: 'Port',
+                                  focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: CustomColors.red)),
+                                  floatingLabelStyle: TextStyle(color: CustomColors.red),
+                                ),
+                                onSaved: (newValue) {
+                                  data['mqttPort'] = newValue;
+                                },
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          const Text("MQTT com login"),
+                          Checkbox(
+                            checkColor: Colors.white,
+                            fillColor: MaterialStateProperty.resolveWith((states) => CustomColors.red),
+                            value: isAnonymous,
+                            onChanged: (bool? value) {
+                              setState(() {
+                                isAnonymous = value!;
+                              });
                             },
                           ),
+                        ],
+                      ),
+                      if (isAnonymous)
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Container(
+                                margin: const EdgeInsets.only(right: 2),
+                                child: TextFormField(
+                                  enableSuggestions: false,
+                                  autocorrect: false,
+                                  initialValue: username,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Username',
+                                    focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: CustomColors.red)),
+                                    floatingLabelStyle: TextStyle(color: CustomColors.red),
+                                  ),
+                                  onSaved: (newValue) {
+                                    data['username'] = newValue;
+                                  },
+                                ),
+                              ),
+                            ),
+                            Flexible(
+                              child: Container(
+                                margin: const EdgeInsets.only(left: 2),
+                                child: TextFormField(
+                                  obscureText: true,
+                                  enableSuggestions: false,
+                                  autocorrect: false,
+                                  initialValue: password,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Password',
+                                    focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: CustomColors.red)),
+                                    floatingLabelStyle: TextStyle(color: CustomColors.red),
+                                  ),
+                                  onSaved: (newValue) {
+                                    data['password'] = newValue;
+                                  },
+                                ),
+                              ),
+                            )
+                          ],
                         ),
-                      )
                     ],
                   ),
                 Container(

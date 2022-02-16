@@ -16,6 +16,7 @@ import 'package:teslamate/classes/preferences.dart';
 import 'package:teslamate/components/map.dart';
 import 'package:teslamate/components/soc_card.dart';
 import 'package:teslamate/utils/custom_colors.dart';
+import 'package:teslamate/utils/mqtt_client_wrapper.dart';
 import 'package:teslamate/utils/routes.dart';
 
 class Dashboard extends StatefulWidget {
@@ -149,6 +150,7 @@ class _DashboardState extends State<Dashboard> {
     Car car = Provider.of<Cars>(context, listen: false).getCar(preferences.carID);
     List<Charge> charges = Provider.of<Charges>(context, listen: false).items;
     List<Drive> drives = Provider.of<Drives>(context, listen: false).items;
+    MqttClientWrapper mqttClientWrapper = Provider.of<MqttClientWrapper>(context, listen: false);
     return Scaffold(
       body: Consumer<CarStatus>(
         builder: (context, carStatus, child) {
@@ -158,263 +160,298 @@ class _DashboardState extends State<Dashboard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  Stack(
+                    alignment: AlignmentDirectional.center,
                     children: [
-                      if (carStatus.shiftState != "D" && carStatus.shiftState != "R")
-                        Row(
-                          children: [
-                            const Icon(MdiIcons.carBrakeParking, color: CustomColors.red),
-                            Text(
-                              " ${carStatus.shiftState}",
-                            ),
-                          ],
-                        ),
-                      if (carStatus.shiftState == "D" || carStatus.shiftState == "R")
-                        InkWell(
-                          onTap: onTap,
-                          child: Row(
-                            children: [
-                              const Icon(CupertinoIcons.location_fill),
-                              Text(
-                                " ${carStatus.speed}Km/h",
-                              ),
-                            ],
-                          ),
-                        ),
-                      Chip(
-                        label: Text(carStatus.realState),
-                      ),
-                    ],
-                  ),
-                  if (carStatus.state == 'charging')
-                    Card(
-                      clipBehavior: Clip.antiAlias,
-                      elevation: 0,
-                      color: Theme.of(context).scaffoldBackgroundColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5), // if you need this
-                        side: BorderSide(
-                          color: Colors.green.withOpacity(0.5),
-                          width: 1,
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Column(
-                              children: [
-                                Text(
-                                  "Potencia (Kw)",
-                                  style: Theme.of(context).textTheme.labelSmall,
-                                ),
-                                Row(
-                                  children: [
-                                    Icon(
-                                      carStatus.getBatteryChargingIcon(),
-                                      color: Colors.amber,
-                                    ),
-                                    Text(
-                                      "${carStatus.chargingPower}",
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                Text(
-                                  "Kwh adicionados",
-                                  style: Theme.of(context).textTheme.labelSmall,
-                                ),
-                                Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.add,
-                                      color: Colors.amber,
-                                    ),
-                                    Text(
-                                      "${carStatus.chargeEnergyAdded.toStringAsFixed(2)}Kwh",
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                Text(
-                                  "Tempo restante",
-                                  style: Theme.of(context).textTheme.labelSmall,
-                                ),
-                                Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.timer_outlined,
-                                      color: Colors.amber,
-                                    ),
-                                    Text(
-                                      carStatus.timeToFullCharge,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  if (carStatus.pluggedIn && carStatus.state != 'charging')
-                    Card(
-                      clipBehavior: Clip.antiAlias,
-                      elevation: 0,
-                      color: Theme.of(context).scaffoldBackgroundColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5), // if you need this
-                        side: BorderSide(
-                          color: Colors.green.withOpacity(0.5),
-                          width: 1,
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Column(
-                              children: [
-                                Text(
-                                  "Plugged In",
-                                  style: Theme.of(context).textTheme.labelSmall,
-                                ),
-                                const Icon(
-                                  MdiIcons.evPlugType2,
-                                  color: Colors.amber,
-                                ),
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                Text(
-                                  "Inicio Programado",
-                                  style: Theme.of(context).textTheme.labelSmall,
-                                ),
-                                Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.timer_outlined,
-                                      color: Colors.amber,
-                                    ),
-                                    Text(
-                                      DateFormat("hh:mm", "pt").format(carStatus.scheduledChargingStartTime),
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  Container(
-                    margin: const EdgeInsets.only(top: 10, bottom: 10),
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      Column(
                         children: [
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Icon(
-                                CupertinoIcons.thermometer,
-                                size: 30,
-                              ),
-                              Container(
-                                margin: const EdgeInsets.only(right: 5),
-                                child: Column(
+                              if (carStatus.shiftState != "D" && carStatus.shiftState != "R")
+                                Row(
                                   children: [
+                                    const Icon(MdiIcons.carBrakeParking, color: CustomColors.red),
                                     Text(
-                                      "Interior",
-                                      style: Theme.of(context).textTheme.labelSmall,
-                                    ),
-                                    Text(
-                                      "${carStatus.insideTemp} ºC",
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                      ),
+                                      " ${carStatus.shiftState}",
                                     ),
                                   ],
                                 ),
-                              ),
-                              Container(
-                                margin: const EdgeInsets.only(right: 5),
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      "Exterior",
-                                      style: Theme.of(context).textTheme.labelSmall,
-                                    ),
-                                    Text(
-                                      "${carStatus.outsideTemp} ºC",
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
+                              if (carStatus.shiftState == "D" || carStatus.shiftState == "R")
+                                InkWell(
+                                  onTap: onTap,
+                                  child: Row(
+                                    children: [
+                                      const Icon(CupertinoIcons.location_fill),
+                                      Text(
+                                        " ${carStatus.speed}Km/h",
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              Container(
-                                margin: const EdgeInsets.only(left: 5),
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      carStatus.isClimateOn ? "ON" : "OFF",
-                                      style: carStatus.isClimateOn
-                                          ? Theme.of(context).textTheme.labelSmall?.copyWith(color: CustomColors.red)
-                                          : Theme.of(context).textTheme.labelSmall,
-                                    ),
-                                    if (!carStatus.isClimateOn) const Icon(MdiIcons.fanOff),
-                                    if (carStatus.isClimateOn)
-                                      const Icon(
-                                        MdiIcons.fan,
-                                        color: CustomColors.red,
-                                      ),
-                                  ],
-                                ),
+                              Chip(
+                                label: Text(carStatus.realState),
                               ),
                             ],
                           ),
-                          if (!carStatus.sentryMode) const Icon(MdiIcons.recordCircleOutline),
-                          if (carStatus.sentryMode)
-                            const Icon(
-                              MdiIcons.recordRec,
-                              color: CustomColors.red,
+                          if (carStatus.state == 'charging')
+                            Card(
+                              clipBehavior: Clip.antiAlias,
+                              elevation: 0,
+                              color: Theme.of(context).scaffoldBackgroundColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5), // if you need this
+                                side: BorderSide(
+                                  color: Colors.green.withOpacity(0.5),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                  children: [
+                                    Column(
+                                      children: [
+                                        Text(
+                                          "Potencia (Kw)",
+                                          style: Theme.of(context).textTheme.labelSmall,
+                                        ),
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              carStatus.getBatteryChargingIcon(),
+                                              color: Colors.amber,
+                                            ),
+                                            Text(
+                                              "${carStatus.chargingPower}",
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    Column(
+                                      children: [
+                                        Text(
+                                          "Kwh adicionados",
+                                          style: Theme.of(context).textTheme.labelSmall,
+                                        ),
+                                        Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.add,
+                                              color: Colors.amber,
+                                            ),
+                                            Text(
+                                              "${carStatus.chargeEnergyAdded.toStringAsFixed(2)}Kwh",
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    Column(
+                                      children: [
+                                        Text(
+                                          "Tempo restante",
+                                          style: Theme.of(context).textTheme.labelSmall,
+                                        ),
+                                        Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.timer_outlined,
+                                              color: Colors.amber,
+                                            ),
+                                            Text(
+                                              carStatus.timeToFullCharge,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
-                          InkWell(
-                            onTap: onTap,
-                            child: const Icon(
-                              Icons.map,
-                              size: 30,
+                          if (carStatus.pluggedIn && carStatus.state != 'charging')
+                            Card(
+                              clipBehavior: Clip.antiAlias,
+                              elevation: 0,
+                              color: Theme.of(context).scaffoldBackgroundColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5), // if you need this
+                                side: BorderSide(
+                                  color: Colors.green.withOpacity(0.5),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                  children: [
+                                    Column(
+                                      children: [
+                                        Text(
+                                          "Plugged In",
+                                          style: Theme.of(context).textTheme.labelSmall,
+                                        ),
+                                        const Icon(
+                                          MdiIcons.evPlugType2,
+                                          color: Colors.amber,
+                                        ),
+                                      ],
+                                    ),
+                                    Column(
+                                      children: [
+                                        Text(
+                                          "Inicio Programado",
+                                          style: Theme.of(context).textTheme.labelSmall,
+                                        ),
+                                        Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.timer_outlined,
+                                              color: Colors.amber,
+                                            ),
+                                            Text(
+                                              DateFormat("hh:mm", "pt").format(carStatus.scheduledChargingStartTime),
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
-                          )
+                          Container(
+                            margin: const EdgeInsets.only(top: 10, bottom: 10),
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        CupertinoIcons.thermometer,
+                                        size: 30,
+                                      ),
+                                      Container(
+                                        margin: const EdgeInsets.only(right: 5),
+                                        child: Column(
+                                          children: [
+                                            Text(
+                                              "Interior",
+                                              style: Theme.of(context).textTheme.labelSmall,
+                                            ),
+                                            Text(
+                                              "${carStatus.insideTemp} ºC",
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        margin: const EdgeInsets.only(right: 5),
+                                        child: Column(
+                                          children: [
+                                            Text(
+                                              "Exterior",
+                                              style: Theme.of(context).textTheme.labelSmall,
+                                            ),
+                                            Text(
+                                              "${carStatus.outsideTemp} ºC",
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        margin: const EdgeInsets.only(left: 5),
+                                        child: Column(
+                                          children: [
+                                            Text(
+                                              carStatus.isClimateOn ? "ON" : "OFF",
+                                              style: carStatus.isClimateOn
+                                                  ? Theme.of(context).textTheme.labelSmall?.copyWith(color: CustomColors.red)
+                                                  : Theme.of(context).textTheme.labelSmall,
+                                            ),
+                                            if (!carStatus.isClimateOn) const Icon(MdiIcons.fanOff),
+                                            if (carStatus.isClimateOn)
+                                              const Icon(
+                                                MdiIcons.fan,
+                                                color: CustomColors.red,
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  if (!carStatus.sentryMode) const Icon(MdiIcons.recordCircleOutline),
+                                  if (carStatus.sentryMode)
+                                    const Icon(
+                                      MdiIcons.recordRec,
+                                      color: CustomColors.red,
+                                    ),
+                                  InkWell(
+                                    onTap: onTap,
+                                    child: const Icon(
+                                      Icons.map,
+                                      size: 30,
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                          SocCard(carStatus: carStatus),
                         ],
                       ),
-                    ),
+                      if (!preferences.useMqtt || !mqttClientWrapper.connected)
+                        Positioned(
+                          bottom: 0,
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: const BorderRadius.all(Radius.circular(5)),
+                              color: CustomColors.red.withOpacity(0.7),
+                            ),
+                            alignment: Alignment.center,
+                            child: Card(
+                              elevation: 3,
+                              color: Theme.of(context).cardTheme.shadowColor,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  "MQTT desligado ou mal configurado!\nVisite as definições se pretender usar",
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context).textTheme.labelLarge?.copyWith(color: Theme.of(context).textTheme.displaySmall?.color),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
-                  SocCard(carStatus: carStatus),
                   Row(
                     children: [
                       Expanded(

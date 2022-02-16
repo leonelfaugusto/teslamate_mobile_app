@@ -60,7 +60,9 @@ class _HomeState extends State<Home> {
     CarStatus carStatus = Provider.of<CarStatus>(context, listen: false);
     await preferences.setCarId(carId);
     carStatus.reset();
-    clientWrapper.client.disconnect();
+    if (clientWrapper.connected) {
+      clientWrapper.client.disconnect();
+    }
     charges.items = [];
     charges.page = 1;
     drives.items = [];
@@ -80,9 +82,19 @@ class _HomeState extends State<Home> {
     await Future.delayed(const Duration(milliseconds: 500));
     try {
       await fetchPreferences(context);
-      if (!clientWrapper.connected) {
+    } catch (e) {
+      return false;
+    }
+
+    try {
+      if (preferences.useMqtt && !clientWrapper.connected) {
         await clientWrapper.connect(context);
       }
+    } catch (e) {
+      print(e);
+    }
+
+    try {
       if (!allDone) {
         charges.items = [];
         charges.page = 1;

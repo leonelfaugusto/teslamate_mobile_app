@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import 'package:teslamate/classes/charge.dart';
 import 'package:teslamate/classes/charges.dart';
 import 'package:teslamate/components/info_card.dart';
-import 'package:teslamate/utils/custom_colors.dart';
 
 class ChargeScreen extends StatefulWidget {
   const ChargeScreen({Key? key}) : super(key: key);
@@ -183,6 +182,43 @@ class _ChargeScreenState extends State<ChargeScreen> {
                                         handleBuiltInTouches: true,
                                         touchTooltipData: LineTouchTooltipData(
                                           fitInsideVertically: true,
+                                          getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
+                                            return touchedBarSpots.map((barSpot) {
+                                              final flSpot = barSpot;
+
+                                              return LineTooltipItem(
+                                                '',
+                                                TextStyle(
+                                                  color: flSpot.bar.colors.first,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                                children: [
+                                                  TextSpan(
+                                                    text: flSpot.y.toString(),
+                                                    style: TextStyle(
+                                                      color: flSpot.bar.colors.first,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                  if (flSpot.barIndex == 0)
+                                                    const TextSpan(
+                                                      text: 'Kw',
+                                                      style: TextStyle(
+                                                        fontStyle: FontStyle.italic,
+                                                        fontWeight: FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  if (flSpot.barIndex == 1)
+                                                    const TextSpan(
+                                                      text: '%',
+                                                      style: TextStyle(
+                                                        fontWeight: FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                ],
+                                              );
+                                            }).toList();
+                                          },
                                         ),
                                       ),
                                       titlesData: FlTitlesData(
@@ -223,7 +259,7 @@ class _ChargeScreenState extends State<ChargeScreen> {
                                   ),
                                 ),
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                                   children: [
                                     Column(
                                       children: [
@@ -239,7 +275,7 @@ class _ChargeScreenState extends State<ChargeScreen> {
                                         ),
                                       ],
                                     ),
-                                    Column(
+                                    /* Column(
                                       children: [
                                         const Icon(
                                           MdiIcons.chartLine,
@@ -252,7 +288,7 @@ class _ChargeScreenState extends State<ChargeScreen> {
                                               ),
                                         ),
                                       ],
-                                    ),
+                                    ), */
                                     Column(
                                       children: [
                                         const Icon(
