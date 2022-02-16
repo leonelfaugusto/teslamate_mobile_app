@@ -18,6 +18,7 @@ import 'package:teslamate/components/soc_card.dart';
 import 'package:teslamate/utils/custom_colors.dart';
 import 'package:teslamate/utils/mqtt_client_wrapper.dart';
 import 'package:teslamate/utils/routes.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
@@ -214,7 +215,7 @@ class _DashboardState extends State<Dashboard> {
                                     Column(
                                       children: [
                                         Text(
-                                          "Potencia (Kw)",
+                                          "${AppLocalizations.of(context)!.power} (Kw)",
                                           style: Theme.of(context).textTheme.labelSmall,
                                         ),
                                         Row(
@@ -236,7 +237,7 @@ class _DashboardState extends State<Dashboard> {
                                     Column(
                                       children: [
                                         Text(
-                                          "Kwh adicionados",
+                                          AppLocalizations.of(context)!.khwAdded,
                                           style: Theme.of(context).textTheme.labelSmall,
                                         ),
                                         Row(
@@ -258,7 +259,7 @@ class _DashboardState extends State<Dashboard> {
                                     Column(
                                       children: [
                                         Text(
-                                          "Tempo restante",
+                                          AppLocalizations.of(context)!.timeRemaining,
                                           style: Theme.of(context).textTheme.labelSmall,
                                         ),
                                         Row(
@@ -301,7 +302,7 @@ class _DashboardState extends State<Dashboard> {
                                     Column(
                                       children: [
                                         Text(
-                                          "Plugged In",
+                                          AppLocalizations.of(context)!.pluggedIn,
                                           style: Theme.of(context).textTheme.labelSmall,
                                         ),
                                         const Icon(
@@ -313,7 +314,7 @@ class _DashboardState extends State<Dashboard> {
                                     Column(
                                       children: [
                                         Text(
-                                          "Inicio Programado",
+                                          AppLocalizations.of(context)!.scheduledStart,
                                           style: Theme.of(context).textTheme.labelSmall,
                                         ),
                                         Row(
@@ -323,7 +324,7 @@ class _DashboardState extends State<Dashboard> {
                                               color: Colors.amber,
                                             ),
                                             Text(
-                                              DateFormat("hh:mm", "pt").format(carStatus.scheduledChargingStartTime),
+                                              DateFormat("hh:mm").format(carStatus.scheduledChargingStartTime),
                                               style: const TextStyle(
                                                 fontWeight: FontWeight.w700,
                                               ),
@@ -354,7 +355,7 @@ class _DashboardState extends State<Dashboard> {
                                         child: Column(
                                           children: [
                                             Text(
-                                              "Interior",
+                                              AppLocalizations.of(context)!.inside,
                                               style: Theme.of(context).textTheme.labelSmall,
                                             ),
                                             Text(
@@ -371,7 +372,7 @@ class _DashboardState extends State<Dashboard> {
                                         child: Column(
                                           children: [
                                             Text(
-                                              "Exterior",
+                                              AppLocalizations.of(context)!.outside,
                                               style: Theme.of(context).textTheme.labelSmall,
                                             ),
                                             Text(
@@ -388,7 +389,9 @@ class _DashboardState extends State<Dashboard> {
                                         child: Column(
                                           children: [
                                             Text(
-                                              carStatus.isClimateOn ? "ON" : "OFF",
+                                              carStatus.isClimateOn
+                                                  ? AppLocalizations.of(context)!.on.toUpperCase()
+                                                  : AppLocalizations.of(context)!.off.toUpperCase(),
                                               style: carStatus.isClimateOn
                                                   ? Theme.of(context).textTheme.labelSmall?.copyWith(color: CustomColors.red)
                                                   : Theme.of(context).textTheme.labelSmall,
@@ -442,7 +445,7 @@ class _DashboardState extends State<Dashboard> {
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Text(
-                                  "MQTT desligado ou mal configurado!\nVisite as definições se pretender usar",
+                                  AppLocalizations.of(context)!.mqttMessage,
                                   textAlign: TextAlign.center,
                                   style: Theme.of(context).textTheme.labelLarge?.copyWith(color: Theme.of(context).textTheme.displaySmall?.color),
                                 ),
@@ -462,7 +465,7 @@ class _DashboardState extends State<Dashboard> {
                             child: Column(
                               children: [
                                 Text(
-                                  "Carregamentos",
+                                  AppLocalizations.of(context)!.charges,
                                   style: Theme.of(context).textTheme.labelSmall,
                                 ),
                                 Text(
@@ -482,7 +485,7 @@ class _DashboardState extends State<Dashboard> {
                             child: Column(
                               children: [
                                 Text(
-                                  "Percursos",
+                                  AppLocalizations.of(context)!.drives,
                                   style: Theme.of(context).textTheme.labelSmall,
                                 ),
                                 FittedBox(
@@ -505,7 +508,7 @@ class _DashboardState extends State<Dashboard> {
                             child: Column(
                               children: [
                                 Text(
-                                  "Updates",
+                                  AppLocalizations.of(context)!.updates,
                                   style: Theme.of(context).textTheme.labelSmall,
                                 ),
                                 Text(
@@ -525,7 +528,7 @@ class _DashboardState extends State<Dashboard> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          " Últimos carregamentos",
+                          AppLocalizations.of(context)!.lastCharges,
                           style: Theme.of(context).textTheme.labelLarge,
                         ),
                         Card(
@@ -557,10 +560,10 @@ class _DashboardState extends State<Dashboard> {
                                         );
                                       },
                                       subtitle: Text(
-                                        "${DateFormat("HH:mm", "pt").format(charges[i].startDate)} - ${DateFormat("HH:mm", "pt").format(charges[i].endDate)}",
+                                        "${DateFormat("HH:mm").format(charges[i].startDate)} - ${DateFormat("HH:mm").format(charges[i].endDate)}",
                                         style: Theme.of(context).textTheme.labelSmall,
                                       ),
-                                      title: Text(DateFormat("d MMMM y", "pt").format(charges[i].startDate)),
+                                      title: Text(DateFormat("d MMMM y").format(charges[i].startDate)),
                                       trailing: Text("${charges[i].cost}€"),
                                     ),
                                     if (i != 2)
@@ -581,7 +584,7 @@ class _DashboardState extends State<Dashboard> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          " Últimos percursos",
+                          AppLocalizations.of(context)!.lastDrives,
                           style: Theme.of(context).textTheme.labelLarge,
                         ),
                         Card(
@@ -607,10 +610,10 @@ class _DashboardState extends State<Dashboard> {
                                       dense: true,
                                       onTap: null,
                                       subtitle: Text(
-                                        "${DateFormat("HH:mm", "pt").format(drives[i].startDate)} - ${DateFormat("HH:mm", "pt").format(drives[i].endDate)}",
+                                        "${DateFormat("HH:mm").format(drives[i].startDate)} - ${DateFormat("HH:mm").format(drives[i].endDate)}",
                                         style: Theme.of(context).textTheme.labelSmall,
                                       ),
-                                      title: Text(DateFormat("d MMMM y", "pt").format(drives[i].startDate)),
+                                      title: Text(DateFormat("d MMMM y").format(drives[i].startDate)),
                                       trailing: Text("${drives[i].distance}Km"),
                                     ),
                                     if (i != 2)
