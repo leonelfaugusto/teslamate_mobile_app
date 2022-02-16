@@ -6,7 +6,19 @@ Future<List<ChargeDetail>> fetchChargeDetails(int id) async {
   final SharedPreferences _prefs = await SharedPreferences.getInstance();
   final api = _prefs.getString("api");
   final carID = _prefs.getInt("car_id") ?? 1;
-  final response = await http.get(Uri.parse('$api/api/v1/cars/$carID/charges/$id'));
+  final apiUsername = _prefs.getString("wwwUsername") ?? "";
+  final apiPassword = _prefs.getString("wwwPassword") ?? "";
+  final isApiProtected = _prefs.getBool("isApiProtected") ?? false;
+  Map<String, String> headers = {};
+  if (isApiProtected) {
+    Codec<String, String> stringToBase64 = utf8.fuse(base64);
+    String send = stringToBase64.encode("$apiUsername:$apiPassword");
+    headers = {
+      ...headers,
+      "Authorization": "Basic $send",
+    };
+  }
+  final response = await http.get(Uri.parse('$api/api/v1/cars/$carID/charges/$id'), headers: headers);
   final List<ChargeDetail> chargeDetails = [];
 
   if (response.statusCode == 200) {

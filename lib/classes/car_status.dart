@@ -22,7 +22,7 @@ class CarStatus with ChangeNotifier {
   double chargeEnergyAdded = 0.0;
   String timeToFullCharge = "";
   bool pluggedIn = false;
-  String scheduledChargingStartTime = "";
+  DateTime scheduledChargingStartTime = DateTime.now();
 
   CarStatus();
 
@@ -45,7 +45,7 @@ class CarStatus with ChangeNotifier {
     shiftState = "Estacionado";
     sentryMode = false;
     pluggedIn = false;
-    scheduledChargingStartTime = "";
+    scheduledChargingStartTime = DateTime.now();
     odometer = 0;
     notifyListeners();
   }
@@ -192,7 +192,7 @@ class CarStatus with ChangeNotifier {
   }
 
   void setScheduledChargingStartTime(String value) {
-    scheduledChargingStartTime = value;
+    scheduledChargingStartTime = DateTime.parse(value);
     notifyListeners();
   }
 

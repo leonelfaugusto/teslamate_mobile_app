@@ -14,6 +14,9 @@ Future<void> fetchPreferences(context) async {
     preferences.mqttIsAnonymous = _prefs.getBool("mqttIsAnonymous") ?? true;
     preferences.mqttUsername = _prefs.getString("mqttUsername") ?? "";
     preferences.mqttPassword = _prefs.getString("mqttPassword") ?? "";
+    preferences.apiUsername = _prefs.getString("wwwUsername") ?? "";
+    preferences.apiPassword = _prefs.getString("wwwPassword") ?? "";
+    preferences.isApiProtected = _prefs.getBool("isApiProtected") ?? false;
   } catch (e) {
     throw Exception(e);
   }
@@ -24,7 +27,10 @@ class Preferences with ChangeNotifier {
   int mqttPort = 1883;
   String mqttUsername = "";
   String mqttPassword = "";
+  String apiUsername = "";
+  String apiPassword = "";
   bool mqttIsAnonymous = true;
+  bool isApiProtected = false;
   String api = "";
   int carID = 1;
   bool prefsExist = false;
@@ -63,6 +69,24 @@ class Preferences with ChangeNotifier {
     final SharedPreferences _prefs = await SharedPreferences.getInstance();
     await _prefs.setString("api", url);
     api = url;
+  }
+
+  Future<void> setIsApiProtected(bool isApiProtectedValue) async {
+    final SharedPreferences _prefs = await SharedPreferences.getInstance();
+    await _prefs.setBool("isApiProtected", isApiProtectedValue);
+    isApiProtected = isApiProtectedValue;
+  }
+
+  Future<void> setApiUsername(String username) async {
+    final SharedPreferences _prefs = await SharedPreferences.getInstance();
+    await _prefs.setString("wwwUsername", username);
+    apiUsername = username;
+  }
+
+  Future<void> setApiPassword(String password) async {
+    final SharedPreferences _prefs = await SharedPreferences.getInstance();
+    await _prefs.setString("wwwPassword", password);
+    apiPassword = password;
   }
 
   Future<void> setCarId(int id) async {

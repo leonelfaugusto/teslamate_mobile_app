@@ -8,7 +8,17 @@ import 'package:teslamate/classes/preferences.dart';
 Future fetchCharges(BuildContext context) async {
   Charges charges = Provider.of<Charges>(context, listen: false);
   Preferences preferences = Provider.of<Preferences>(context, listen: false);
-  final response = await http.get(Uri.parse('${preferences.api}/api/v1/cars/${preferences.carID}/charges?show=${charges.show}&page=${charges.page}'));
+  Map<String, String> headers = {};
+  if (preferences.isApiProtected) {
+    Codec<String, String> stringToBase64 = utf8.fuse(base64);
+    String send = stringToBase64.encode("${preferences.apiUsername}:${preferences.apiPassword}");
+    headers = {
+      ...headers,
+      "Authorization": "Basic $send",
+    };
+  }
+  final response = await http.get(Uri.parse('${preferences.api}/api/v1/cars/${preferences.carID}/charges?show=${charges.show}&page=${charges.page}'),
+      headers: headers);
   final List<Charge> chargesToAdd = [];
 
   if (response.statusCode == 200) {

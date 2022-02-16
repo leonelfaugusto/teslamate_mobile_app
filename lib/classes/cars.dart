@@ -8,7 +8,16 @@ import 'package:teslamate/classes/preferences.dart';
 Future fetchCars(BuildContext context) async {
   Cars cars = Provider.of<Cars>(context, listen: false);
   Preferences preferences = Provider.of<Preferences>(context, listen: false);
-  final response = await http.get(Uri.parse('${preferences.api}/api/v1/cars'));
+  Map<String, String> headers = {};
+  if (preferences.isApiProtected) {
+    Codec<String, String> stringToBase64 = utf8.fuse(base64);
+    String send = stringToBase64.encode("${preferences.apiUsername}:${preferences.apiPassword}");
+    headers = {
+      ...headers,
+      "Authorization": "Basic $send",
+    };
+  }
+  final response = await http.get(Uri.parse('${preferences.api}/api/v1/cars'), headers: headers);
   final List<Car> carsToAdd = [];
 
   if (response.statusCode == 200) {
@@ -25,7 +34,7 @@ Future fetchCars(BuildContext context) async {
   } else {
     // If the server did not return a 200 OK response,
     // then throw an exception.
-    throw Exception('Failed to load charge');
+    throw Exception("failed ${response.reasonPhrase}");
   }
 }
 
