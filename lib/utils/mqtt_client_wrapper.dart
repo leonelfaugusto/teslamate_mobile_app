@@ -34,10 +34,10 @@ class MqttClientWrapper with ChangeNotifier {
     String? id = "teslamate_companion";
     if (Platform.isIOS) {
       var iosDeviceInfo = await deviceInfo.iosInfo;
-      id = iosDeviceInfo.identifierForVendor; // unique ID on iOS
+      id = iosDeviceInfo.identifierForVendor;
     } else {
       var androidDeviceInfo = await deviceInfo.androidInfo;
-      id = androidDeviceInfo.androidId; // unique ID on Android
+      id = androidDeviceInfo.androidId;
     }
 
     final connMess = MqttConnectMessage();
@@ -96,25 +96,25 @@ class MqttClientWrapper with ChangeNotifier {
         var value = pt;
         switch (pt) {
           case "asleep":
-            value = "A dormir";
+            value = AppLocalizations.of(context)!.asleep;
             break;
           case "driving":
-            value = "Em movimento";
+            value = AppLocalizations.of(context)!.driving;
             break;
           case "online":
             value = AppLocalizations.of(context)!.online;
             break;
           case "charging":
-            value = "A carregar";
+            value = AppLocalizations.of(context)!.charging;
             break;
-          case "Updating":
-            value = "A atualizar";
+          case "updating":
+            value = AppLocalizations.of(context)!.updating;
             break;
           case "offline":
-            value = "Offline";
+            value = AppLocalizations.of(context)!.offline;
             break;
           case "suspended":
-            value = "A adormecer";
+            value = AppLocalizations.of(context)!.suspended;
             break;
           default:
             value = pt;

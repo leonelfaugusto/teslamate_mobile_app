@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:teslamate/classes/charge.dart';
 import 'package:teslamate/classes/charges.dart';
 import 'package:teslamate/components/info_card.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ChargeScreen extends StatefulWidget {
   const ChargeScreen({Key? key}) : super(key: key);
@@ -39,7 +40,7 @@ class _ChargeScreenState extends State<ChargeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(DateFormat("d MMMM y", "pt").format(charge.startDate)),
+        title: Text(DateFormat("d MMMM y").format(charge.startDate)),
       ),
       body: Container(
         padding: const EdgeInsets.only(
@@ -244,7 +245,7 @@ class _ChargeScreenState extends State<ChargeScreen> {
                                           },
                                           getTitles: (value) {
                                             DateTime date = DateTime.fromMicrosecondsSinceEpoch(value.toInt());
-                                            return DateFormat("hh:mm", "pt").format(date);
+                                            return DateFormat("hh:mm").format(date);
                                           },
                                         ),
                                       ),
@@ -268,7 +269,7 @@ class _ChargeScreenState extends State<ChargeScreen> {
                                           color: Color(0xff4af699),
                                         ),
                                         Text(
-                                          "Power",
+                                          AppLocalizations.of(context)!.power,
                                           style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                                 color: const Color(0xff4af699),
                                               ),
@@ -296,7 +297,7 @@ class _ChargeScreenState extends State<ChargeScreen> {
                                           color: Colors.blue,
                                         ),
                                         Text(
-                                          "Battery level",
+                                          AppLocalizations.of(context)!.batteryLevel,
                                           style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                                 color: Colors.blue,
                                               ),
@@ -310,8 +311,8 @@ class _ChargeScreenState extends State<ChargeScreen> {
                           ),
                         );
                       }
-                      return const Center(
-                        child: Text("Sem detalhes"),
+                      return Center(
+                        child: Text(AppLocalizations.of(context)!.noDetails),
                       );
                     },
                   ),

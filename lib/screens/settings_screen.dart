@@ -85,7 +85,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "API options",
+                  AppLocalizations.of(context)!.apiOptions,
                   style: Theme.of(context).textTheme.headline6,
                 ),
                 TextFormField(
@@ -93,10 +93,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   autocorrect: false,
                   keyboardType: TextInputType.url,
                   initialValue: api,
-                  decoration: const InputDecoration(
-                    labelText: 'API',
-                    focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: CustomColors.red)),
-                    floatingLabelStyle: TextStyle(color: CustomColors.red),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.apiLink,
+                    focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: CustomColors.red)),
+                    floatingLabelStyle: const TextStyle(color: CustomColors.red),
                   ),
                   onSaved: (newValue) {
                     data['api'] = newValue;
@@ -104,7 +104,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 Row(
                   children: [
-                    const Text("API com login de proteção"),
+                    Text(AppLocalizations.of(context)!.protectedApi),
                     Checkbox(
                       checkColor: Colors.white,
                       fillColor: MaterialStateProperty.resolveWith((states) => CustomColors.red),
@@ -127,10 +127,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             enableSuggestions: false,
                             autocorrect: false,
                             initialValue: wwwusername,
-                            decoration: const InputDecoration(
-                              labelText: 'Username',
-                              focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: CustomColors.red)),
-                              floatingLabelStyle: TextStyle(color: CustomColors.red),
+                            decoration: InputDecoration(
+                              labelText: AppLocalizations.of(context)!.username,
+                              focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: CustomColors.red)),
+                              floatingLabelStyle: const TextStyle(color: CustomColors.red),
                             ),
                             onSaved: (newValue) {
                               data['wwwusername'] = newValue;
@@ -146,10 +146,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             enableSuggestions: false,
                             autocorrect: false,
                             initialValue: wwwpassword,
-                            decoration: const InputDecoration(
-                              labelText: 'Password',
-                              focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: CustomColors.red)),
-                              floatingLabelStyle: TextStyle(color: CustomColors.red),
+                            decoration: InputDecoration(
+                              labelText: AppLocalizations.of(context)!.password,
+                              focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: CustomColors.red)),
+                              floatingLabelStyle: const TextStyle(color: CustomColors.red),
                             ),
                             onSaved: (newValue) {
                               data['wwwpassword'] = newValue;
@@ -162,7 +162,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Container(margin: const EdgeInsets.only(top: 40)),
                 Row(
                   children: [
-                    const Text("Usar MQTT (opcional)"),
+                    Text(AppLocalizations.of(context)!.useMQTT),
                     Checkbox(
                       checkColor: Colors.white,
                       fillColor: MaterialStateProperty.resolveWith((states) => CustomColors.red),
@@ -180,7 +180,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "MQTT options",
+                        AppLocalizations.of(context)!.mqttOptions,
                         style: Theme.of(context).textTheme.headline6,
                       ),
                       Row(
@@ -194,10 +194,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 autocorrect: false,
                                 keyboardType: TextInputType.url,
                                 initialValue: mqtt,
-                                decoration: const InputDecoration(
-                                  labelText: 'MQTT url',
-                                  focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: CustomColors.red)),
-                                  floatingLabelStyle: TextStyle(color: CustomColors.red),
+                                decoration: InputDecoration(
+                                  labelText: AppLocalizations.of(context)!.mqttLink,
+                                  focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: CustomColors.red)),
+                                  floatingLabelStyle: const TextStyle(color: CustomColors.red),
                                 ),
                                 onSaved: (newValue) {
                                   data['mqtt'] = newValue;
@@ -213,10 +213,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 autocorrect: false,
                                 keyboardType: TextInputType.number,
                                 initialValue: mqttPort.toString(),
-                                decoration: const InputDecoration(
-                                  labelText: 'Port',
-                                  focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: CustomColors.red)),
-                                  floatingLabelStyle: TextStyle(color: CustomColors.red),
+                                decoration: InputDecoration(
+                                  labelText: AppLocalizations.of(context)!.port,
+                                  focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: CustomColors.red)),
+                                  floatingLabelStyle: const TextStyle(color: CustomColors.red),
                                 ),
                                 onSaved: (newValue) {
                                   data['mqttPort'] = newValue;
@@ -228,7 +228,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       Row(
                         children: [
-                          const Text("MQTT com login"),
+                          Text(AppLocalizations.of(context)!.protectedMQTT),
                           Checkbox(
                             checkColor: Colors.white,
                             fillColor: MaterialStateProperty.resolveWith((states) => CustomColors.red),
@@ -251,10 +251,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   enableSuggestions: false,
                                   autocorrect: false,
                                   initialValue: username,
-                                  decoration: const InputDecoration(
-                                    labelText: 'Username',
-                                    focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: CustomColors.red)),
-                                    floatingLabelStyle: TextStyle(color: CustomColors.red),
+                                  decoration: InputDecoration(
+                                    labelText: AppLocalizations.of(context)!.username,
+                                    focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: CustomColors.red)),
+                                    floatingLabelStyle: const TextStyle(color: CustomColors.red),
                                   ),
                                   onSaved: (newValue) {
                                     data['username'] = newValue;
@@ -270,10 +270,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   enableSuggestions: false,
                                   autocorrect: false,
                                   initialValue: password,
-                                  decoration: const InputDecoration(
-                                    labelText: 'Password',
-                                    focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: CustomColors.red)),
-                                    floatingLabelStyle: TextStyle(color: CustomColors.red),
+                                  decoration: InputDecoration(
+                                    labelText: AppLocalizations.of(context)!.password,
+                                    focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: CustomColors.red)),
+                                    floatingLabelStyle: const TextStyle(color: CustomColors.red),
                                   ),
                                   onSaved: (newValue) {
                                     data['password'] = newValue;
@@ -291,10 +291,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     onPressed: () async {
                       await onSave();
                     },
-                    child: const SizedBox(
+                    child: SizedBox(
                       width: double.infinity,
                       child: Text(
-                        'Gravar',
+                        AppLocalizations.of(context)!.save,
                         textAlign: TextAlign.center,
                       ),
                     ),
