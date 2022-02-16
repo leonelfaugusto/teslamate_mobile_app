@@ -174,7 +174,7 @@ class _DashboardState extends State<Dashboard> {
                                   children: [
                                     const Icon(MdiIcons.carBrakeParking, color: CustomColors.red),
                                     Text(
-                                      " ${carStatus.shiftState}",
+                                      " ${carStatus.shiftState == "" ? AppLocalizations.of(context)!.parked : carStatus.shiftState}",
                                     ),
                                   ],
                                 ),
