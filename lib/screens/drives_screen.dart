@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:grouped_list/sliver_grouped_list.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:teslamate/classes/drive.dart';
@@ -42,27 +44,48 @@ class _DrivesScreenState extends State<DrivesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Consumer<Drives>(
-        builder: (context, drives, child) {
-          return SmartRefresher(
-            controller: _refreshController,
-            enablePullDown: true,
-            enablePullUp: true,
-            header: const WaterDropMaterialHeader(),
-            onRefresh: _onRefresh,
-            onLoading: _onLoading,
-            child: drives.items.isNotEmpty
-                ? ListView.builder(
-                    itemCount: drives.items.length,
-                    itemBuilder: (context, index) {
-                      return DriveCard(drive: drives.items[index]);
-                    },
-                  )
-                : const Center(
-                    child: Text("Não existem percursos"),
-                  ),
-          );
-        },
+      body: Padding(
+        padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+        child: Consumer<Drives>(
+          builder: (context, drives, child) {
+            return SmartRefresher(
+              controller: _refreshController,
+              enablePullDown: true,
+              enablePullUp: true,
+              header: const WaterDropMaterialHeader(),
+              onRefresh: _onRefresh,
+              onLoading: _onLoading,
+              child: drives.items.isNotEmpty
+                  ? CustomScrollView(
+                      slivers: [
+                        SliverGroupedListView<Drive, String>(
+                          elements: drives.items,
+                          groupBy: (drive) => DateFormat("yMMdd").format(drive.startDate),
+                          indexedItemBuilder: (c, element, index) {
+                            return DriveCard(
+                              index: index,
+                            );
+                          },
+                          order: GroupedListOrder.DESC,
+                          groupSeparatorBuilder: (value) {
+                            var date = DateTime.parse(value);
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                DateFormat("dd MMM, y").format(date),
+                                style: Theme.of(context).textTheme.bodyText2!.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                            );
+                          },
+                        )
+                      ],
+                    )
+                  : const Center(
+                      child: Text("Não existem percursos"),
+                    ),
+            );
+          },
+        ),
       ),
     );
   }

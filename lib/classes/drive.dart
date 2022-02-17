@@ -26,6 +26,9 @@ class Drive {
   final int startBatteryLevel;
   final int endBatteryLevel;
   final int batteryDiff;
+  final dynamic startRange;
+  final dynamic endRange;
+  final dynamic rangeDiff;
 
   const Drive({
     required this.driveId,
@@ -37,6 +40,9 @@ class Drive {
     required this.startBatteryLevel,
     required this.endBatteryLevel,
     required this.batteryDiff,
+    required this.startRange,
+    required this.endRange,
+    required this.rangeDiff,
   });
 
   factory Drive.fromJson(Map<String, dynamic> json) {
@@ -50,6 +56,9 @@ class Drive {
       startBatteryLevel: json['battery_details']['start_usable_battery_level'],
       endBatteryLevel: json['battery_details']['end_usable_battery_level'],
       batteryDiff: json['battery_details']['start_usable_battery_level'] - json['battery_details']['end_usable_battery_level'],
+      startRange: json['range_rated']['start_range'],
+      endRange: json['range_rated']['end_range'],
+      rangeDiff: json['range_rated']['range_diff'],
     );
   }
 }

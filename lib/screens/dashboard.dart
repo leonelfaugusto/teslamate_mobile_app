@@ -324,7 +324,7 @@ class _DashboardState extends State<Dashboard> {
                                               color: Colors.amber,
                                             ),
                                             Text(
-                                              DateFormat("hh:mm").format(carStatus.scheduledChargingStartTime),
+                                              DateFormat("HH:mm").format(carStatus.scheduledChargingStartTime),
                                               style: const TextStyle(
                                                 fontWeight: FontWeight.w700,
                                               ),

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:grouped_list/grouped_list.dart';
+import 'package:grouped_list/sliver_grouped_list.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:teslamate/classes/charge.dart';
@@ -42,27 +45,48 @@ class _ChargesScreenState extends State<ChargesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Consumer<Charges>(
-        builder: (context, charges, child) {
-          return SmartRefresher(
-            controller: _refreshController,
-            enablePullDown: true,
-            enablePullUp: true,
-            header: const WaterDropMaterialHeader(),
-            onRefresh: _onRefresh,
-            onLoading: _onLoading,
-            child: charges.items.isNotEmpty
-                ? ListView.builder(
-                    itemCount: charges.items.length,
-                    itemBuilder: (context, index) {
-                      return ChargeCard(index: index);
-                    },
-                  )
-                : const Center(
-                    child: Text("Não existem carregamentos"),
-                  ),
-          );
-        },
+      body: Padding(
+        padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+        child: Consumer<Charges>(
+          builder: (context, charges, child) {
+            return SmartRefresher(
+              controller: _refreshController,
+              enablePullDown: true,
+              enablePullUp: true,
+              header: const WaterDropMaterialHeader(),
+              onRefresh: _onRefresh,
+              onLoading: _onLoading,
+              child: charges.items.isNotEmpty
+                  ? CustomScrollView(
+                      slivers: [
+                        SliverGroupedListView<Charge, String>(
+                          elements: charges.items,
+                          groupBy: (charge) => DateFormat("yMMdd").format(charge.startDate),
+                          indexedItemBuilder: (c, element, index) {
+                            return ChargeCard(
+                              index: index,
+                            );
+                          },
+                          order: GroupedListOrder.DESC,
+                          groupSeparatorBuilder: (value) {
+                            var date = DateTime.parse(value);
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                DateFormat("dd MMM, y").format(date),
+                                style: Theme.of(context).textTheme.bodyText2!.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                            );
+                          },
+                        )
+                      ],
+                    )
+                  : const Center(
+                      child: Text("Não existem carregamentos"),
+                    ),
+            );
+          },
+        ),
       ),
     );
   }
