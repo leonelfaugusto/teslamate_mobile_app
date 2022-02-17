@@ -24,19 +24,8 @@ class _ChargeScreenState extends State<ChargeScreen> {
   }
 
   @override
-  void didChangeDependencies() {
-    int index = ModalRoute.of(context)!.settings.arguments as int;
-    Charges charges = Provider.of<Charges>(context, listen: false);
-    if (charges.items[index].chargeDetails.isEmpty) {
-      charges.getMoreInfo(index);
-    }
-    super.didChangeDependencies();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    int index = ModalRoute.of(context)!.settings.arguments as int;
-    Charge charge = Provider.of<Charges>(context, listen: false).items[index];
+    Charge charge = ModalRoute.of(context)!.settings.arguments as Charge;
 
     return Scaffold(
       appBar: AppBar(
@@ -98,7 +87,7 @@ class _ChargeScreenState extends State<ChargeScreen> {
                 [
                   Consumer<Charges>(
                     builder: (context, charges, child) {
-                      if (charges.items[index].chargeDetails.isNotEmpty) {
+                      if (charge.chargeDetails.isNotEmpty) {
                         final List<FlSpot> initData = [];
                         for (var i = 0; i < charge.chargeDetails.length; i++) {
                           if (0 == i % 5) {
@@ -245,7 +234,7 @@ class _ChargeScreenState extends State<ChargeScreen> {
                                           },
                                           getTitles: (value) {
                                             DateTime date = DateTime.fromMicrosecondsSinceEpoch(value.toInt());
-                                            return DateFormat("hh:mm").format(date);
+                                            return DateFormat("HH:mm").format(date);
                                           },
                                         ),
                                       ),

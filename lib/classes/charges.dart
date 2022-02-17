@@ -70,7 +70,7 @@ class Charges with ChangeNotifier {
     notifyListeners();
   }
 
-  void getMoreInfo(int index) async {
+  Future<void> getMoreInfo(int index) async {
     await items[index].fetchMoreInfo();
     notifyListeners();
   }

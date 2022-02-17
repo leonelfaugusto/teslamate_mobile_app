@@ -13,6 +13,9 @@ class Charge {
   final String address;
   final dynamic chargeEnergyAdded;
   final dynamic chargeenergyUsed;
+  final double startRange;
+  final double endRange;
+  final double rangeDiff;
   List<ChargeDetail> chargeDetails;
 
   Charge({
@@ -28,6 +31,9 @@ class Charge {
     required this.address,
     required this.chargeEnergyAdded,
     required this.chargeenergyUsed,
+    required this.startRange,
+    required this.endRange,
+    required this.rangeDiff,
     this.chargeDetails = const [],
   });
 
@@ -45,6 +51,9 @@ class Charge {
       chargeEnergyAdded: json['charge_energy_added'],
       chargeenergyUsed: json['charge_energy_used'],
       batteryDiff: json['battery_details']['end_battery_level'] - json['battery_details']['start_battery_level'],
+      startRange: json['range_rated']['start_range'] - json['battery_details']['start_battery_level'],
+      endRange: json['range_rated']['end_range'],
+      rangeDiff: json['range_rated']['end_range'] - json['range_rated']['start_range'],
     );
   }
 

@@ -17,7 +17,7 @@ class DriveCard extends StatelessWidget {
             ListTile(
                 title: Text(DateFormat("d MMMM y").format(drive.startDate)),
                 subtitle: Text(
-                  "${DateFormat("hh:mm").format(drive.startDate)} - ${DateFormat("hh:mm").format(drive.endDate)}",
+                  "${DateFormat("HH:mm").format(drive.startDate)} - ${DateFormat("HH:mm").format(drive.endDate)}",
                   style: TextStyle(color: Colors.black.withOpacity(0.6)),
                 ),
                 trailing: Text('${drive.distance}Km')),
