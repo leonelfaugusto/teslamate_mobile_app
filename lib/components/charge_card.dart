@@ -37,12 +37,17 @@ class _ChargeCardState extends State<ChargeCard> {
           setState(() {
             loading = true;
           });
-          await charges.getMoreInfo(widget.index);
+          if (charge.chargeDetails.isEmpty) {
+            await charges.getMoreInfo(widget.index);
+          }
           Navigator.pushNamed(
             context,
             Routes.charge,
             arguments: charge,
           );
+          setState(() {
+            loading = false;
+          });
         },
         child: Padding(
           padding: const EdgeInsets.all(8.0),
