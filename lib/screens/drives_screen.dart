@@ -44,45 +44,48 @@ class _DrivesScreenState extends State<DrivesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Consumer<Drives>(
-        builder: (context, drives, child) {
-          return SmartRefresher(
-            controller: _refreshController,
-            enablePullDown: true,
-            enablePullUp: true,
-            header: const WaterDropMaterialHeader(),
-            onRefresh: _onRefresh,
-            onLoading: _onLoading,
-            child: drives.items.isNotEmpty
-                ? CustomScrollView(
-                    slivers: [
-                      SliverGroupedListView<Drive, String>(
-                        elements: drives.items,
-                        groupBy: (drive) => DateFormat("yMMdd").format(drive.startDate),
-                        indexedItemBuilder: (c, element, index) {
-                          return DriveCard(
-                            drive: element,
-                          );
-                        },
-                        order: GroupedListOrder.DESC,
-                        groupSeparatorBuilder: (value) {
-                          var date = DateTime.parse(value);
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              DateFormat("dd MMM, y").format(date),
-                              style: Theme.of(context).textTheme.bodyText2!.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                          );
-                        },
-                      )
-                    ],
-                  )
-                : const Center(
-                    child: Text("Não existem percursos"),
-                  ),
-          );
-        },
+      body: Padding(
+        padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+        child: Consumer<Drives>(
+          builder: (context, drives, child) {
+            return SmartRefresher(
+              controller: _refreshController,
+              enablePullDown: true,
+              enablePullUp: true,
+              header: const WaterDropMaterialHeader(),
+              onRefresh: _onRefresh,
+              onLoading: _onLoading,
+              child: drives.items.isNotEmpty
+                  ? CustomScrollView(
+                      slivers: [
+                        SliverGroupedListView<Drive, String>(
+                          elements: drives.items,
+                          groupBy: (drive) => DateFormat("yMMdd").format(drive.startDate),
+                          indexedItemBuilder: (c, element, index) {
+                            return DriveCard(
+                              index: index,
+                            );
+                          },
+                          order: GroupedListOrder.DESC,
+                          groupSeparatorBuilder: (value) {
+                            var date = DateTime.parse(value);
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                DateFormat("dd MMM, y").format(date),
+                                style: Theme.of(context).textTheme.bodyText2!.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                            );
+                          },
+                        )
+                      ],
+                    )
+                  : const Center(
+                      child: Text("Não existem percursos"),
+                    ),
+            );
+          },
+        ),
       ),
     );
   }

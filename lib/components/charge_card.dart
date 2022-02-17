@@ -20,7 +20,7 @@ class _ChargeCardState extends State<ChargeCard> {
   @override
   Widget build(BuildContext context) {
     Charges charges = Provider.of<Charges>(context, listen: false);
-    Charge charge = Provider.of<Charges>(context, listen: false).items[widget.index];
+    Charge charge = charges.items[widget.index];
     return Card(
       shape: loading
           ? RoundedRectangleBorder(side: const BorderSide(color: Color.fromARGB(255, 56, 142, 60)), borderRadius: BorderRadius.circular(5))
@@ -115,7 +115,7 @@ class _ChargeCardState extends State<ChargeCard> {
                       ),
                     ),
                     Flexible(
-                      flex: charge.endBatteryLevel - charge.startBatteryLevel,
+                      flex: charge.batteryDiff,
                       child: Container(
                         height: 3,
                         decoration: const BoxDecoration(

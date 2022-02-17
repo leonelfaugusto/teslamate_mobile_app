@@ -13,9 +13,9 @@ class Charge {
   final String address;
   final dynamic chargeEnergyAdded;
   final dynamic chargeenergyUsed;
-  final double startRange;
-  final double endRange;
-  final double rangeDiff;
+  final dynamic startRange;
+  final dynamic endRange;
+  final dynamic rangeDiff;
   List<ChargeDetail> chargeDetails;
 
   Charge({
