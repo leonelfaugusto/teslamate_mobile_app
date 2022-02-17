@@ -553,7 +553,9 @@ class _DashboardState extends State<Dashboard> {
                                       visualDensity: VisualDensity.compact,
                                       dense: true,
                                       onTap: () async {
-                                        await charges.getMoreInfo(i);
+                                        if (charges.items[i].chargeDetails.isEmpty) {
+                                          await charges.getMoreInfo(i);
+                                        }
                                         Navigator.pushNamed(
                                           context,
                                           Routes.charge,
