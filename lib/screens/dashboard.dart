@@ -149,7 +149,7 @@ class _DashboardState extends State<Dashboard> {
   Widget build(BuildContext context) {
     Preferences preferences = Provider.of<Preferences>(context);
     Car car = Provider.of<Cars>(context, listen: false).getCar(preferences.carID);
-    List<Charge> charges = Provider.of<Charges>(context, listen: false).items;
+    Charges charges = Provider.of<Charges>(context, listen: false);
     List<Drive> drives = Provider.of<Drives>(context, listen: false).items;
     MqttClientWrapper mqttClientWrapper = Provider.of<MqttClientWrapper>(context, listen: false);
     return Scaffold(
@@ -552,19 +552,20 @@ class _DashboardState extends State<Dashboard> {
                                       contentPadding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 8.0),
                                       visualDensity: VisualDensity.compact,
                                       dense: true,
-                                      onTap: () {
+                                      onTap: () async {
+                                        await charges.getMoreInfo(i);
                                         Navigator.pushNamed(
                                           context,
                                           Routes.charge,
-                                          arguments: i,
+                                          arguments: charges.items[i],
                                         );
                                       },
                                       subtitle: Text(
-                                        "${DateFormat("HH:mm").format(charges[i].startDate)} - ${DateFormat("HH:mm").format(charges[i].endDate)}",
+                                        "${DateFormat("HH:mm").format(charges.items[i].startDate)} - ${DateFormat("HH:mm").format(charges.items[i].endDate)}",
                                         style: Theme.of(context).textTheme.labelSmall,
                                       ),
-                                      title: Text(DateFormat("d MMMM y").format(charges[i].startDate)),
-                                      trailing: Text("${charges[i].cost}€"),
+                                      title: Text(DateFormat("d MMMM y").format(charges.items[i].startDate)),
+                                      trailing: Text("${charges.items[i].cost}€"),
                                     ),
                                     if (i != 2)
                                       const Divider(
