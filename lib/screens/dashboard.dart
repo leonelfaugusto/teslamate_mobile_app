@@ -1,19 +1,18 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:teslamate/classes/car.dart';
 import 'package:teslamate/classes/car_status.dart';
 import 'package:teslamate/classes/cars.dart';
-import 'package:teslamate/classes/charge.dart';
 import 'package:teslamate/classes/charges.dart';
 import 'package:teslamate/classes/drive.dart';
 import 'package:teslamate/classes/drives.dart';
 import 'package:teslamate/classes/preferences.dart';
-import 'package:teslamate/components/map.dart';
 import 'package:teslamate/components/soc_card.dart';
 import 'package:teslamate/utils/custom_colors.dart';
 import 'package:teslamate/utils/mqtt_client_wrapper.dart';
@@ -28,12 +27,46 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
-  late MapWrapperController mapWrapperController;
+  final Completer<GoogleMapController> _controller = Completer();
+  late Map<MarkerId, Marker> markers;
 
   @override
-  void initState() {
-    mapWrapperController = MapWrapperController();
-    super.initState();
+  void didChangeDependencies() {
+    setUpMarker();
+    super.didChangeDependencies();
+  }
+
+  setUpMarker() async {
+    CarStatus carStatus = Provider.of<CarStatus>(context);
+    markers = {
+      const MarkerId('car'): Marker(
+        markerId: const MarkerId("car"),
+        position: LatLng(carStatus.ltd, carStatus.lng),
+        icon: await BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(48, 48)), 'lib/assets/images/gps.png'),
+        rotation: carStatus.heading,
+      ),
+    };
+  }
+
+  Future<Marker> newLocationUpdate(LatLng latLng, double heading) async {
+    var marker = Marker(
+      markerId: const MarkerId("car"),
+      position: latLng,
+      icon: await BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(48, 48)), 'lib/assets/images/gps.png'),
+      rotation: heading,
+    );
+
+    final GoogleMapController controller = await _controller.future;
+    controller.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: latLng,
+          zoom: await controller.getZoomLevel(),
+        ),
+      ),
+    );
+
+    return marker;
   }
 
   onTap() {
@@ -46,40 +79,20 @@ class _DashboardState extends State<Dashboard> {
           children: [
             Consumer<CarStatus>(
               builder: (context, carStatus, child) {
-                LatLng lt = LatLng(carStatus.ltd, carStatus.lng);
-                Marker marker = Marker(
-                  point: lt,
-                  rotate: false,
-                  builder: (ctx) => Transform.rotate(
-                    angle: carStatus.headingRad,
-                    child: const Icon(
-                      MdiIcons.navigation,
-                      color: CustomColors.red,
-                      size: 30,
-                    ),
+                newLocationUpdate(LatLng(carStatus.ltd, carStatus.lng), carStatus.heading).then((value) => markers[const MarkerId("car")] = value);
+                return GoogleMap(
+                  mapType: MapType.normal,
+                  initialCameraPosition: CameraPosition(
+                    target: LatLng(carStatus.ltd, carStatus.lng),
+                    zoom: 18,
                   ),
-                );
-                if (mapWrapperController.readyAndMounted) {
-                  mapWrapperController.controller?.move(lt, mapWrapperController.controller!.zoom);
-                }
-                return FlutterMapWrapper(
-                  wrapperController: mapWrapperController,
-                  options: MapOptions(
-                    center: lt,
-                    zoom: 15.0,
-                    maxZoom: 18,
-                  ),
-                  layers: [
-                    TileLayerOptions(
-                      urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                      subdomains: ['a', 'b', 'c'],
-                    ),
-                    MarkerLayerOptions(
-                      markers: [
-                        marker,
-                      ],
-                    ),
-                  ],
+                  markers: markers.values.toSet(),
+                  myLocationButtonEnabled: false,
+                  onMapCreated: (GoogleMapController controller) {
+                    if (!_controller.isCompleted) {
+                      _controller.complete(controller);
+                    }
+                  },
                 );
               },
             ),
@@ -114,14 +127,17 @@ class _DashboardState extends State<Dashboard> {
                           color: Colors.transparent,
                           child: InkWell(
                             highlightColor: Colors.transparent,
-                            onTap: () {
-                              if (mapWrapperController.readyAndMounted) {
-                                CarStatus carStatus = Provider.of<CarStatus>(context, listen: false);
-                                mapWrapperController.controller?.move(
-                                  LatLng(carStatus.ltd, carStatus.lng),
-                                  mapWrapperController.controller!.zoom,
-                                );
-                              }
+                            onTap: () async {
+                              CarStatus carStatus = Provider.of<CarStatus>(context, listen: false);
+                              final GoogleMapController controller = await _controller.future;
+                              controller.animateCamera(
+                                CameraUpdate.newCameraPosition(
+                                  CameraPosition(
+                                    target: LatLng(carStatus.ltd, carStatus.lng),
+                                    zoom: await controller.getZoomLevel(),
+                                  ),
+                                ),
+                              );
                             },
                             child: Padding(
                               padding: const EdgeInsets.all(10.0),
@@ -150,7 +166,7 @@ class _DashboardState extends State<Dashboard> {
     Preferences preferences = Provider.of<Preferences>(context);
     Car car = Provider.of<Cars>(context, listen: false).getCar(preferences.carID);
     Charges charges = Provider.of<Charges>(context, listen: false);
-    List<Drive> drives = Provider.of<Drives>(context, listen: false).items;
+    Drives drives = Provider.of<Drives>(context, listen: false);
     MqttClientWrapper mqttClientWrapper = Provider.of<MqttClientWrapper>(context, listen: false);
     return Scaffold(
       body: Consumer<CarStatus>(
@@ -611,13 +627,22 @@ class _DashboardState extends State<Dashboard> {
                                       contentPadding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 8.0),
                                       visualDensity: VisualDensity.compact,
                                       dense: true,
-                                      onTap: null,
+                                      onTap: () async {
+                                        if (drives.items[i].driveDetails.isEmpty) {
+                                          await drives.getMoreInfo(i);
+                                        }
+                                        Navigator.pushNamed(
+                                          context,
+                                          Routes.drive,
+                                          arguments: drives.items[i],
+                                        );
+                                      },
                                       subtitle: Text(
-                                        "${DateFormat("HH:mm").format(drives[i].startDate)} - ${DateFormat("HH:mm").format(drives[i].endDate)}",
+                                        "${DateFormat("HH:mm").format(drives.items[i].startDate)} - ${DateFormat("HH:mm").format(drives.items[i].endDate)}",
                                         style: Theme.of(context).textTheme.labelSmall,
                                       ),
-                                      title: Text(DateFormat("d MMMM y").format(drives[i].startDate)),
-                                      trailing: Text("${drives[i].distance}Km"),
+                                      title: Text(DateFormat("d MMMM y").format(drives.items[i].startDate)),
+                                      trailing: Text("${drives.items[i].distance}Km"),
                                     ),
                                     if (i != 2)
                                       const Divider(

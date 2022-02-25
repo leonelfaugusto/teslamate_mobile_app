@@ -43,12 +43,11 @@ dependencies:
   provider: ^6.0.2
   device_info_plus: ^3.2.1
   flutter_native_splash: ^2.0.1+1
-  flutter_map: ^0.14.0
-  latlong2: ^0.8.1
   shared_preferences: ^2.0.13
   material_design_icons_flutter: ^5.0.6595
   fl_chart: ^0.41.0
   grouped_list: ^4.2.0
+  google_maps_flutter: ^2.1.1
 
 dev_dependencies:
   flutter_test:
@@ -77,6 +76,7 @@ flutter:
      - lib/assets/images/tesla.png
      - lib/assets/images/gps.png
      - lib/assets/images/logo_splash.png
+     - lib/assets/map_styles/dark.json
 
   generate: true
 

@@ -4,6 +4,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:provider/provider.dart';
 import 'package:teslamate/classes/drive.dart';
 import 'package:teslamate/classes/drives.dart';
+import 'package:teslamate/utils/routes.dart';
 
 class DriveCard extends StatefulWidget {
   final int index;
@@ -34,13 +35,14 @@ class _DriveCardState extends State<DriveCard> {
           setState(() {
             loading = true;
           });
-          await Future.delayed(Duration(milliseconds: 500));
-          // await drives.getMoreInfo(widget.index);
-          /* Navigator.pushNamed(
+          if (drive.driveDetails.isEmpty) {
+            await drives.getMoreInfo(widget.index);
+          }
+          Navigator.pushNamed(
             context,
-            Routes.charge,
-            arguments: charge,
-          ); */
+            Routes.drive,
+            arguments: drive,
+          );
           setState(() {
             loading = false;
           });
@@ -89,7 +91,7 @@ class _DriveCardState extends State<DriveCard> {
                   Row(
                     children: [
                       Text(
-                        "-${drive.batteryDiff}%",
+                        "${drive.batteryDiff}%",
                         style: Theme.of(context).textTheme.labelSmall,
                       ),
                       const Icon(
@@ -116,7 +118,7 @@ class _DriveCardState extends State<DriveCard> {
                       ),
                     ),
                     Flexible(
-                      flex: drive.batteryDiff,
+                      flex: -drive.batteryDiff,
                       child: Container(
                         height: 3,
                         decoration: const BoxDecoration(
@@ -158,7 +160,7 @@ class _DriveCardState extends State<DriveCard> {
                     ],
                   ),
                   Text(
-                    "-${drive.rangeDiff} Km",
+                    "${drive.rangeDiff} Km",
                     style: Theme.of(context).textTheme.labelMedium,
                   ),
                 ],

@@ -3,6 +3,7 @@
 *.log
 *.pyc
 *.swp
+*.env
 .DS_Store
 .atom/
 .buildlog/
@@ -47,3 +48,5 @@ app.*.map.json
 
 # vscode
 .vscode/
+
+/ios/Flutter/*.xcconfig

@@ -141,7 +141,6 @@ class _HomeState extends State<Home> {
             ),
             drawer: Drawer(
               child: ListView(
-                // Important: Remove any padding from the ListView.
                 padding: EdgeInsets.zero,
                 children: [
                   SizedBox(
@@ -223,24 +222,5 @@ class _HomeState extends State<Home> {
         }
       },
     );
-  }
-}
-
-class ProgressBar extends StatelessWidget {
-  final bool isLoading;
-  const ProgressBar({
-    Key? key,
-    required this.isLoading,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    if (isLoading) {
-      return LinearProgressIndicator(
-        minHeight: 1,
-        color: Colors.redAccent[700],
-      );
-    }
-    return Container(height: 1);
   }
 }

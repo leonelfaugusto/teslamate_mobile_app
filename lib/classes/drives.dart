@@ -30,7 +30,7 @@ Future fetchDrives(BuildContext context) async {
         drivesToAdd.add(Drive.fromJson(charge));
       }
     }
-    drives.addCharges(drivesToAdd);
+    drives.addDrives(drivesToAdd);
   } else {
     // If the server did not return a 200 OK response,
     // then throw an exception.
@@ -51,18 +51,27 @@ class Drives with ChangeNotifier {
     drives = c;
   }
 
+  Drive getDrive(id) {
+    return drives.firstWhere((drive) => drive.driveId == id);
+  }
+
   void clearItems() {
     drives = [];
     notifyListeners();
   }
 
-  void addCharge(Drive drive) {
+  void addDrive(Drive drive) {
     drives.add(drive);
     notifyListeners();
   }
 
-  void addCharges(List<Drive> d) {
+  void addDrives(List<Drive> d) {
     drives.addAll(d);
+    notifyListeners();
+  }
+
+  Future<void> getMoreInfo(int index) async {
+    await items[index].fetchMoreInfo();
     notifyListeners();
   }
 }

@@ -28,11 +28,6 @@ class _ChargeCardState extends State<ChargeCard> {
       elevation: 0,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTapCancel: () {
-          setState(() {
-            loading = false;
-          });
-        },
         onTap: () async {
           setState(() {
             loading = true;
