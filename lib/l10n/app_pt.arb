@@ -78,5 +78,21 @@
     "offline": "Sem ligação",
     "@offline": {},
     "suspended": "A adormecer",
-    "@suspended": {}
+    "@suspended": {},
+    "from": "desde",
+    "@from": {},
+    "to": "até",
+    "@to": {},
+    "range": "Alcance",
+    "@range": {},
+    "spent": "Gasto",
+    "@spent": {},
+    "speed": "Velocidade",
+    "@speed": {},
+    "avgSpeed": "Velocidade média",
+    "@avgSpeed": {},
+    "distance": "Distância",
+    "@distance": {},
+    "duration": "Duração",
+    "@duration": {}
 }

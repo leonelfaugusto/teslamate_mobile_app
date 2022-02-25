@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:grouped_list/grouped_list.dart';
 import 'package:grouped_list/sliver_grouped_list.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -31,15 +30,6 @@ class _ChargesScreenState extends State<ChargesScreen> {
     charges.page += 1;
     await fetchCharges(context);
     _refreshController.loadComplete();
-  }
-
-  @override
-  void initState() {
-    List<Charge> charges = Provider.of<Charges>(context, listen: false).items;
-    if (charges.isEmpty) {
-      fetchCharges(context);
-    }
-    super.initState();
   }
 
   @override

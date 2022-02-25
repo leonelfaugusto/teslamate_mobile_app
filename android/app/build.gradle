@@ -6,6 +6,15 @@ if (localPropertiesFile.exists()) {
     }
 }
 
+def googleMapsApiKey = localProperties.getProperty('googleMapsApiKey')
+if (googleMapsApiKey == null) {
+   throw new GradleException("Google Maps API key not found. Define location with googleMapsApiKey in the local.properties file.")
+}
+
+manifestPlaceholders = [
+    googleMapsApiKey: googleMapsApiKey
+]
+
 def flutterRoot = localProperties.getProperty('flutter.sdk')
 if (flutterRoot == null) {
     throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")

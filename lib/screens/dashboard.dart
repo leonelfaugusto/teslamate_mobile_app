@@ -8,7 +8,6 @@ import 'package:provider/provider.dart';
 import 'package:teslamate/classes/car.dart';
 import 'package:teslamate/classes/car_status.dart';
 import 'package:teslamate/classes/cars.dart';
-import 'package:teslamate/classes/charge.dart';
 import 'package:teslamate/classes/charges.dart';
 import 'package:teslamate/classes/drive.dart';
 import 'package:teslamate/classes/drives.dart';

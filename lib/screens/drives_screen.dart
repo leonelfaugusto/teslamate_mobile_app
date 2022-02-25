@@ -33,15 +33,6 @@ class _DrivesScreenState extends State<DrivesScreen> {
   }
 
   @override
-  void initState() {
-    List<Drive> charges = Provider.of<Drives>(context, listen: false).items;
-    if (charges.isEmpty) {
-      fetchDrives(context);
-    }
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(

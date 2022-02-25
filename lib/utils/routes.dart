@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class Routes {
   static const home = '/';
   static const charge = '/charge';
+  static const drive = '/drive';
   static const settings = '/settings';
 }
 
