@@ -48,5 +48,3 @@ app.*.map.json
 
 # vscode
 .vscode/
-
-/ios/Flutter/*.xcconfig

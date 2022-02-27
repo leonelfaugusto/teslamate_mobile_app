@@ -1,8 +1,5 @@
-import 'dart:async';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
@@ -10,7 +7,6 @@ import 'package:teslamate/classes/car.dart';
 import 'package:teslamate/classes/car_status.dart';
 import 'package:teslamate/classes/cars.dart';
 import 'package:teslamate/classes/charges.dart';
-import 'package:teslamate/classes/drive.dart';
 import 'package:teslamate/classes/drives.dart';
 import 'package:teslamate/classes/preferences.dart';
 import 'package:teslamate/components/soc_card.dart';
@@ -27,140 +23,6 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
-  final Completer<GoogleMapController> _controller = Completer();
-  late Map<MarkerId, Marker> markers;
-
-  @override
-  void didChangeDependencies() {
-    setUpMarker();
-    super.didChangeDependencies();
-  }
-
-  setUpMarker() async {
-    CarStatus carStatus = Provider.of<CarStatus>(context);
-    markers = {
-      const MarkerId('car'): Marker(
-        markerId: const MarkerId("car"),
-        position: LatLng(carStatus.ltd, carStatus.lng),
-        icon: await BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(48, 48)), 'lib/assets/images/gps.png'),
-        rotation: carStatus.heading,
-      ),
-    };
-  }
-
-  Future<Marker> newLocationUpdate(LatLng latLng, double heading) async {
-    var marker = Marker(
-      markerId: const MarkerId("car"),
-      position: latLng,
-      icon: await BitmapDescriptor.fromAssetImage(const ImageConfiguration(size: Size(48, 48)), 'lib/assets/images/gps.png'),
-      rotation: heading,
-    );
-
-    final GoogleMapController controller = await _controller.future;
-    controller.animateCamera(
-      CameraUpdate.newCameraPosition(
-        CameraPosition(
-          target: latLng,
-          zoom: await controller.getZoomLevel(),
-        ),
-      ),
-    );
-
-    return marker;
-  }
-
-  onTap() {
-    showDialog(
-      useSafeArea: false,
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return Stack(
-          children: [
-            Consumer<CarStatus>(
-              builder: (context, carStatus, child) {
-                newLocationUpdate(LatLng(carStatus.ltd, carStatus.lng), carStatus.heading).then((value) => markers[const MarkerId("car")] = value);
-                return GoogleMap(
-                  mapType: MapType.normal,
-                  initialCameraPosition: CameraPosition(
-                    target: LatLng(carStatus.ltd, carStatus.lng),
-                    zoom: 18,
-                  ),
-                  markers: markers.values.toSet(),
-                  myLocationButtonEnabled: false,
-                  onMapCreated: (GoogleMapController controller) {
-                    if (!_controller.isCompleted) {
-                      _controller.complete(controller);
-                    }
-                  },
-                );
-              },
-            ),
-            SafeArea(
-              child: Column(
-                children: [
-                  Container(
-                    alignment: Alignment.topRight,
-                    child: ClipOval(
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          highlightColor: Colors.transparent,
-                          onTap: () => Navigator.of(context).pop(),
-                          child: Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Icon(
-                              CupertinoIcons.clear_circled_solid,
-                              size: 40,
-                              color: Colors.grey[700],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Container(
-                      alignment: Alignment.bottomRight,
-                      child: ClipOval(
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            highlightColor: Colors.transparent,
-                            onTap: () async {
-                              CarStatus carStatus = Provider.of<CarStatus>(context, listen: false);
-                              final GoogleMapController controller = await _controller.future;
-                              controller.animateCamera(
-                                CameraUpdate.newCameraPosition(
-                                  CameraPosition(
-                                    target: LatLng(carStatus.ltd, carStatus.lng),
-                                    zoom: await controller.getZoomLevel(),
-                                  ),
-                                ),
-                              );
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Icon(
-                                Icons.gps_fixed,
-                                size: 40,
-                                color: Colors.grey[700],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     Preferences preferences = Provider.of<Preferences>(context);
@@ -195,16 +57,13 @@ class _DashboardState extends State<Dashboard> {
                                   ],
                                 ),
                               if (carStatus.shiftState == "D" || carStatus.shiftState == "R")
-                                InkWell(
-                                  onTap: onTap,
-                                  child: Row(
-                                    children: [
-                                      const Icon(CupertinoIcons.location_fill),
-                                      Text(
-                                        " ${carStatus.speed}Km/h",
-                                      ),
-                                    ],
-                                  ),
+                                Row(
+                                  children: [
+                                    const Icon(CupertinoIcons.location_fill),
+                                    Text(
+                                      " ${carStatus.speed}Km/h",
+                                    ),
+                                  ],
                                 ),
                               Chip(
                                 label: Text(carStatus.realState),
@@ -429,13 +288,18 @@ class _DashboardState extends State<Dashboard> {
                                       MdiIcons.recordRec,
                                       color: CustomColors.red,
                                     ),
-                                  InkWell(
-                                    onTap: onTap,
+                                  /* InkWell(
+                                    onTap: () {
+                                      Navigator.pushNamed(
+                                        context,
+                                        Routes.followMap,
+                                      );
+                                    },
                                     child: const Icon(
                                       Icons.map,
                                       size: 30,
                                     ),
-                                  )
+                                  ) */
                                 ],
                               ),
                             ),
