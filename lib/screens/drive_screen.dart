@@ -1,9 +1,11 @@
+import 'dart:io';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:platform_maps_flutter/platform_maps_flutter.dart';
 import 'package:teslamate/classes/drive.dart';
 import 'package:teslamate/classes/drive_detail.dart';
 import 'package:teslamate/utils/custom_colors.dart';
@@ -403,33 +405,35 @@ class _DriveScreenState extends State<DriveScreen> {
                         height: 150,
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(4),
-                          child: GoogleMap(
+                          child: PlatformMap(
                             mapType: MapType.normal,
-                            cameraTargetBounds: CameraTargetBounds(boundsFromLatLngList(drive.driveDetails)),
+                            rotateGesturesEnabled: false,
                             polylines: {
                               Polyline(
-                                zIndex: 20,
-                                polylineId: const PolylineId('path'),
+                                polylineId: PolylineId('path'),
                                 consumeTapEvents: false,
                                 color: CustomColors.red,
                                 width: 3,
                                 points: drive.driveDetails.map((e) => LatLng(e.latitude, e.longitude)).toList(),
                               ),
                             },
-                            initialCameraPosition: const CameraPosition(
-                              target: LatLng(0, 0),
+                            initialCameraPosition: CameraPosition(
+                              target: LatLng(drive.driveDetails[0].latitude, drive.driveDetails[0].longitude),
+                              zoom: 8,
                             ),
                             myLocationButtonEnabled: false,
                             zoomControlsEnabled: false,
                             zoomGesturesEnabled: false,
-                            buildingsEnabled: false,
-                            mapToolbarEnabled: false,
                             scrollGesturesEnabled: false,
                             tiltGesturesEnabled: false,
                             trafficEnabled: false,
-                            onMapCreated: (GoogleMapController controller) {
-                              controller.animateCamera(CameraUpdate.newLatLngBounds(boundsFromLatLngList(drive.driveDetails), 10));
-                              controller.setMapStyle(_mapStyle);
+                            onMapCreated: (PlatformMapController controller) {
+                              if (Platform.isAndroid) {
+                                controller.googleController?.setMapStyle(_mapStyle);
+                              }
+                              Future.delayed(const Duration(milliseconds: 300)).then((value) {
+                                controller.animateCamera(CameraUpdate.newLatLngBounds(boundsFromLatLngList(drive.driveDetails), 10));
+                              });
                             },
                           ),
                         ),

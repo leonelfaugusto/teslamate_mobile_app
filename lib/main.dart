@@ -12,6 +12,7 @@ import 'package:teslamate/classes/drives.dart';
 import 'package:teslamate/classes/preferences.dart';
 import 'package:teslamate/screens/charge_screen.dart';
 import 'package:teslamate/screens/drive_screen.dart';
+import 'package:teslamate/screens/follow_map.dart';
 import 'package:teslamate/screens/home.dart';
 import 'package:teslamate/screens/settings_screen.dart';
 import 'package:teslamate/utils/mqtt_client_wrapper.dart';
@@ -69,6 +70,7 @@ class App extends StatelessWidget {
           Routes.charge: (_) => const ChargeScreen(),
           Routes.drive: (_) => const DriveScreen(),
           Routes.settings: (_) => const SettingsScreen(),
+          Routes.followMap: (_) => const FollowMap(),
         },
         localizationsDelegates: const [
           AppLocalizations.delegate,

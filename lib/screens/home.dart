@@ -93,6 +93,7 @@ class _HomeState extends State<Home> {
         await clientWrapper.connect(context);
       }
     } catch (e) {
+      // ignore: avoid_print
       print(e);
     }
 
