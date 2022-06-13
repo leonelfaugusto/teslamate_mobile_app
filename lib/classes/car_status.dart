@@ -1,10 +1,18 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CarStatus with ChangeNotifier {
   bool isClimateOn = false;
-  String state = 'online';
-  String realState = 'Online';
+  String state = '';
+  String realState = '';
   double insideTemp = 0.0;
   double outsideTemp = 0.0;
   int speed = 0;
@@ -25,14 +33,119 @@ class CarStatus with ChangeNotifier {
   bool pluggedIn = false;
   DateTime scheduledChargingStartTime = DateTime.now();
 
-  late BuildContext context;
+  final int delay;
 
-  CarStatus();
+  final StreamController<dynamic> _recipientCtrl = StreamController<dynamic>();
+  final StreamController<dynamic> _sentCtrl = StreamController<dynamic>();
+
+  WebSocketChannel? webSocketChannel;
+
+  get stream => _recipientCtrl.stream;
+
+  get sink => _sentCtrl.sink;
+
+  CarStatus({this.delay = 5}) {
+    _sentCtrl.stream.listen((event) {
+      webSocketChannel!.sink.add(event);
+    });
+    _connect();
+  }
+
+  _connect() {
+    SharedPreferences.getInstance().then((_prefs) {
+      var url = dotenv.env['APP_MODE'] == 'TEST' ? dotenv.env['WS_URL_DEV'] : dotenv.env['WS_URL_PROD'];
+      String? token = _prefs.getString("token");
+      webSocketChannel = IOWebSocketChannel.connect(
+        Uri.parse(url as String),
+        headers: {
+          'authorization': "Bearer $token",
+        },
+      );
+      webSocketChannel!.stream.listen(
+        (event) {
+          Map<String, dynamic> data = jsonDecode(event);
+          print(data);
+          switch (data['type']) {
+            case 'state':
+              setState(data['data']);
+              break;
+            case 'is_climate_on':
+              setIsClimateOn(data['data']);
+              break;
+            case 'inside_temp':
+              setInsideTemp(data['data']);
+              break;
+            case 'outside_temp':
+              setOutsideTemp(data['data']);
+              break;
+            case 'speed':
+              setSpeed(data['data']);
+              break;
+            case 'longitude':
+              setLng(data['data']);
+              break;
+            case 'latitude':
+              setLtd(data['data']);
+              break;
+            case 'heading':
+              setHeading(data['data']);
+              break;
+            case 'battery_level':
+              setStateOfCharge(data['data']);
+              break;
+            case 'rated_battery_range_km':
+              setBatteryRange(data['data']);
+              break;
+            case 'charger_power':
+              setChargingPower(data['data']);
+              break;
+            case 'charge_energy_added':
+              setChargeEnergyAdded(data['data']);
+              break;
+            case 'time_to_full_charge':
+              setTimeToFullCharge(data['data']);
+              break;
+            case 'geofence':
+              setGeofence(data['data']);
+              break;
+            case 'shift_state':
+              setShiftState(data['data']);
+              break;
+            case 'sentry_mode':
+              setSentryMode(data['data']);
+              break;
+            case 'plugged_in':
+              setPluggedIn(data['data']);
+              break;
+            case 'scheduled_charging_start_time':
+              setScheduledChargingStartTime(data['data']);
+              break;
+            case 'odometer':
+              setOdometer(data['data']);
+              break;
+            default:
+          }
+          // recipientCtrl.add(event);
+        },
+        onError: (e) async {
+          _recipientCtrl.addError(e);
+          await Future.delayed(Duration(seconds: delay));
+          _connect();
+        },
+        onDone: () async {
+          await Future.delayed(Duration(seconds: delay));
+          _connect();
+        },
+        cancelOnError: true,
+      );
+      _sentCtrl.sink.add('{"type": "request", "data": "car_status"}');
+    });
+  }
 
   void reset() {
     isClimateOn = false;
-    state = 'online';
-    realState = 'Online';
+    state = '';
+    realState = '';
     insideTemp = 0.0;
     outsideTemp = 0.0;
     speed = 0;
@@ -75,10 +188,6 @@ class CarStatus with ChangeNotifier {
   void setState(String value) {
     state = value;
     notifyListeners();
-  }
-
-  void setRealState(String value) {
-    realState = value;
   }
 
   void setInsideTemp(String value) {
@@ -157,18 +266,18 @@ class CarStatus with ChangeNotifier {
     notifyListeners();
   }
 
-  void setGeofence(String value) {
-    geofence = value;
+  void setGeofence(String? value) {
+    geofence = value ?? "";
     notifyListeners();
   }
 
-  void setShiftState(String value) {
-    shiftState = value;
+  void setShiftState(String? value) {
+    shiftState = value ?? "";
     notifyListeners();
   }
 
   void setScheduledChargingStartTime(String value) {
-    scheduledChargingStartTime = DateTime.parse(value);
+    scheduledChargingStartTime = value != "" ? DateTime.parse(value).toLocal() : DateTime.now();
     notifyListeners();
   }
 
@@ -250,5 +359,38 @@ class CarStatus with ChangeNotifier {
       return MdiIcons.battery;
     }
     return MdiIcons.batteryUnknown;
+  }
+
+  static getStateString(context, state) {
+    switch (state) {
+      case "asleep":
+        return AppLocalizations.of(context)!.asleep;
+      case "driving":
+        return AppLocalizations.of(context)!.driving;
+      case "online":
+        return AppLocalizations.of(context)!.online;
+      case "charging":
+        return AppLocalizations.of(context)!.charging;
+      case "updating":
+        return AppLocalizations.of(context)!.updating;
+      case "offline":
+        return AppLocalizations.of(context)!.offline;
+      case "suspended":
+        return AppLocalizations.of(context)!.suspended;
+      default:
+        return state;
+    }
+  }
+
+  static getShiftString(context, shift) {
+    switch (shift) {
+      case "D":
+      case "R":
+        return shift;
+      case "P":
+        return AppLocalizations.of(context)!.parked;
+      default:
+        return AppLocalizations.of(context)!.parked;
+    }
   }
 }

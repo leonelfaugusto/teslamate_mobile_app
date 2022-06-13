@@ -5,7 +5,7 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <meta-data android:name="com.google.android.geo.API_KEY"
-               android:value="${googleMapsApiKey}"/>
+               android:value="AIzaSyCuJmS4-WRXOYVxooVU2raocU0qF0tIXDg"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -32,6 +32,15 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <meta-data
+                android:name="com.google.firebase.messaging.default_notification_channel_id"
+                android:value="high_importance_channel" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/transparent" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/colorNotifications" />
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />

@@ -5,7 +5,6 @@ class Routes {
   static const charge = '/charge';
   static const drive = '/drive';
   static const settings = '/settings';
-  static const followMap = '/follow_map';
 }
 
 Route createRoute(Widget page) {

@@ -8,10 +8,10 @@ import 'package:teslamate/classes/car_status.dart';
 import 'package:teslamate/classes/cars.dart';
 import 'package:teslamate/classes/charges.dart';
 import 'package:teslamate/classes/drives.dart';
+import 'package:teslamate/classes/loading.dart';
 import 'package:teslamate/classes/preferences.dart';
 import 'package:teslamate/components/soc_card.dart';
 import 'package:teslamate/utils/custom_colors.dart';
-import 'package:teslamate/utils/mqtt_client_wrapper.dart';
 import 'package:teslamate/utils/routes.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -29,7 +29,7 @@ class _DashboardState extends State<Dashboard> {
     Car car = Provider.of<Cars>(context, listen: false).getCar(preferences.carID);
     Charges charges = Provider.of<Charges>(context, listen: false);
     Drives drives = Provider.of<Drives>(context, listen: false);
-    MqttClientWrapper mqttClientWrapper = Provider.of<MqttClientWrapper>(context, listen: false);
+    Loading loading = Provider.of<Loading>(context, listen: false);
     return Scaffold(
       body: Consumer<CarStatus>(
         builder: (context, carStatus, child) {
@@ -39,300 +39,257 @@ class _DashboardState extends State<Dashboard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Stack(
-                    alignment: AlignmentDirectional.center,
+                  Column(
                     children: [
-                      Column(
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              if (carStatus.shiftState != "D" && carStatus.shiftState != "R")
-                                Row(
-                                  children: [
-                                    const Icon(MdiIcons.carBrakeParking, color: CustomColors.red),
-                                    Text(
-                                      " ${carStatus.shiftState == "" ? AppLocalizations.of(context)!.parked : carStatus.shiftState}",
-                                    ),
-                                  ],
+                          if (carStatus.shiftState != "D" && carStatus.shiftState != "R")
+                            Row(
+                              children: [
+                                const Icon(MdiIcons.carBrakeParking, color: CustomColors.red),
+                                Text(
+                                  " ${CarStatus.getShiftString(context, carStatus.shiftState)}",
                                 ),
-                              if (carStatus.shiftState == "D" || carStatus.shiftState == "R")
-                                Row(
-                                  children: [
-                                    const Icon(CupertinoIcons.location_fill),
-                                    Text(
-                                      " ${carStatus.speed}Km/h",
-                                    ),
-                                  ],
+                              ],
+                            ),
+                          if (carStatus.shiftState == "D" || carStatus.shiftState == "R")
+                            Row(
+                              children: [
+                                const Icon(CupertinoIcons.location_fill),
+                                Text(
+                                  " ${carStatus.speed}Km/h",
                                 ),
-                              Chip(
-                                label: Text(carStatus.realState),
-                              ),
-                            ],
+                              ],
+                            ),
+                          Chip(
+                            label: Text(CarStatus.getStateString(context, carStatus.state)),
                           ),
-                          if (carStatus.state == 'charging')
-                            Card(
-                              clipBehavior: Clip.antiAlias,
-                              elevation: 0,
-                              color: Theme.of(context).scaffoldBackgroundColor,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5), // if you need this
-                                side: BorderSide(
-                                  color: Colors.green.withOpacity(0.5),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                  children: [
-                                    Column(
-                                      children: [
-                                        Text(
-                                          "${AppLocalizations.of(context)!.power} (Kw)",
-                                          style: Theme.of(context).textTheme.labelSmall,
-                                        ),
-                                        Row(
-                                          children: [
-                                            Icon(
-                                              carStatus.getBatteryChargingIcon(),
-                                              color: Colors.amber,
-                                            ),
-                                            Text(
-                                              "${carStatus.chargingPower}",
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.w700,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    Column(
-                                      children: [
-                                        Text(
-                                          AppLocalizations.of(context)!.khwAdded,
-                                          style: Theme.of(context).textTheme.labelSmall,
-                                        ),
-                                        Row(
-                                          children: [
-                                            const Icon(
-                                              Icons.add,
-                                              color: Colors.amber,
-                                            ),
-                                            Text(
-                                              "${carStatus.chargeEnergyAdded.toStringAsFixed(2)}Kwh",
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.w700,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    Column(
-                                      children: [
-                                        Text(
-                                          AppLocalizations.of(context)!.timeRemaining,
-                                          style: Theme.of(context).textTheme.labelSmall,
-                                        ),
-                                        Row(
-                                          children: [
-                                            const Icon(
-                                              Icons.timer_outlined,
-                                              color: Colors.amber,
-                                            ),
-                                            Text(
-                                              carStatus.timeToFullCharge,
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.w700,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          if (carStatus.pluggedIn && carStatus.state != 'charging')
-                            Card(
-                              clipBehavior: Clip.antiAlias,
-                              elevation: 0,
-                              color: Theme.of(context).scaffoldBackgroundColor,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5), // if you need this
-                                side: BorderSide(
-                                  color: Colors.green.withOpacity(0.5),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                  children: [
-                                    Column(
-                                      children: [
-                                        Text(
-                                          AppLocalizations.of(context)!.pluggedIn,
-                                          style: Theme.of(context).textTheme.labelSmall,
-                                        ),
-                                        const Icon(
-                                          MdiIcons.evPlugType2,
-                                          color: Colors.amber,
-                                        ),
-                                      ],
-                                    ),
-                                    Column(
-                                      children: [
-                                        Text(
-                                          AppLocalizations.of(context)!.scheduledStart,
-                                          style: Theme.of(context).textTheme.labelSmall,
-                                        ),
-                                        Row(
-                                          children: [
-                                            const Icon(
-                                              Icons.timer_outlined,
-                                              color: Colors.amber,
-                                            ),
-                                            Text(
-                                              DateFormat("HH:mm").format(carStatus.scheduledChargingStartTime),
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.w700,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          Container(
-                            margin: const EdgeInsets.only(top: 10, bottom: 10),
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    children: [
-                                      const Icon(
-                                        CupertinoIcons.thermometer,
-                                        size: 30,
-                                      ),
-                                      Container(
-                                        margin: const EdgeInsets.only(right: 5),
-                                        child: Column(
-                                          children: [
-                                            Text(
-                                              AppLocalizations.of(context)!.inside,
-                                              style: Theme.of(context).textTheme.labelSmall,
-                                            ),
-                                            Text(
-                                              "${carStatus.insideTemp} ºC",
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.w700,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Container(
-                                        margin: const EdgeInsets.only(right: 5),
-                                        child: Column(
-                                          children: [
-                                            Text(
-                                              AppLocalizations.of(context)!.outside,
-                                              style: Theme.of(context).textTheme.labelSmall,
-                                            ),
-                                            Text(
-                                              "${carStatus.outsideTemp} ºC",
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Container(
-                                        margin: const EdgeInsets.only(left: 5),
-                                        child: Column(
-                                          children: [
-                                            Text(
-                                              carStatus.isClimateOn
-                                                  ? AppLocalizations.of(context)!.on.toUpperCase()
-                                                  : AppLocalizations.of(context)!.off.toUpperCase(),
-                                              style: carStatus.isClimateOn
-                                                  ? Theme.of(context).textTheme.labelSmall?.copyWith(color: CustomColors.red)
-                                                  : Theme.of(context).textTheme.labelSmall,
-                                            ),
-                                            if (!carStatus.isClimateOn) const Icon(MdiIcons.fanOff),
-                                            if (carStatus.isClimateOn)
-                                              const Icon(
-                                                MdiIcons.fan,
-                                                color: CustomColors.red,
-                                              ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  if (!carStatus.sentryMode) const Icon(MdiIcons.recordCircleOutline),
-                                  if (carStatus.sentryMode)
-                                    const Icon(
-                                      MdiIcons.recordRec,
-                                      color: CustomColors.red,
-                                    ),
-                                  /* InkWell(
-                                    onTap: () {
-                                      Navigator.pushNamed(
-                                        context,
-                                        Routes.followMap,
-                                      );
-                                    },
-                                    child: const Icon(
-                                      Icons.map,
-                                      size: 30,
-                                    ),
-                                  ) */
-                                ],
-                              ),
-                            ),
-                          ),
-                          SocCard(carStatus: carStatus),
                         ],
                       ),
-                      if (!preferences.useMqtt || !mqttClientWrapper.connected)
-                        Positioned(
-                          bottom: 0,
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: const BorderRadius.all(Radius.circular(5)),
-                              color: CustomColors.red.withOpacity(0.7),
+                      if (carStatus.state == 'charging')
+                        Card(
+                          clipBehavior: Clip.antiAlias,
+                          elevation: 0,
+                          color: Theme.of(context).scaffoldBackgroundColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5), // if you need this
+                            side: BorderSide(
+                              color: Colors.green.withOpacity(0.5),
+                              width: 1,
                             ),
-                            alignment: Alignment.center,
-                            child: Card(
-                              elevation: 3,
-                              color: Theme.of(context).cardTheme.shadowColor,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  AppLocalizations.of(context)!.mqttMessage,
-                                  textAlign: TextAlign.center,
-                                  style: Theme.of(context).textTheme.labelLarge?.copyWith(color: Theme.of(context).textTheme.displaySmall?.color),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                Column(
+                                  children: [
+                                    Text(
+                                      "${AppLocalizations.of(context)!.power} (Kw)",
+                                      style: Theme.of(context).textTheme.labelSmall,
+                                    ),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          carStatus.getBatteryChargingIcon(),
+                                          color: Colors.amber,
+                                        ),
+                                        Text(
+                                          "${carStatus.chargingPower}",
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
-                              ),
+                                Column(
+                                  children: [
+                                    Text(
+                                      AppLocalizations.of(context)!.khwAdded,
+                                      style: Theme.of(context).textTheme.labelSmall,
+                                    ),
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.add,
+                                          color: Colors.amber,
+                                        ),
+                                        Text(
+                                          "${carStatus.chargeEnergyAdded.toStringAsFixed(2)}Kwh",
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                Column(
+                                  children: [
+                                    Text(
+                                      AppLocalizations.of(context)!.timeRemaining,
+                                      style: Theme.of(context).textTheme.labelSmall,
+                                    ),
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.timer_outlined,
+                                          color: Colors.amber,
+                                        ),
+                                        Text(
+                                          carStatus.timeToFullCharge,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
                         ),
+                      if (carStatus.pluggedIn && carStatus.state != 'charging')
+                        Card(
+                          clipBehavior: Clip.antiAlias,
+                          elevation: 0,
+                          color: Theme.of(context).scaffoldBackgroundColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5), // if you need this
+                            side: BorderSide(
+                              color: Colors.green.withOpacity(0.5),
+                              width: 1,
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                Column(
+                                  children: [
+                                    Text(
+                                      AppLocalizations.of(context)!.pluggedIn,
+                                      style: Theme.of(context).textTheme.labelSmall,
+                                    ),
+                                    const Icon(
+                                      MdiIcons.evPlugType2,
+                                      color: Colors.amber,
+                                    ),
+                                  ],
+                                ),
+                                Column(
+                                  children: [
+                                    Text(
+                                      AppLocalizations.of(context)!.scheduledStart,
+                                      style: Theme.of(context).textTheme.labelSmall,
+                                    ),
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.timer_outlined,
+                                          color: Colors.amber,
+                                        ),
+                                        Text(
+                                          DateFormat("HH:mm").format(carStatus.scheduledChargingStartTime),
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      Container(
+                        margin: const EdgeInsets.only(top: 10, bottom: 10),
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(
+                                    CupertinoIcons.thermometer,
+                                    size: 30,
+                                  ),
+                                  Container(
+                                    margin: const EdgeInsets.only(right: 5),
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                          AppLocalizations.of(context)!.inside,
+                                          style: Theme.of(context).textTheme.labelSmall,
+                                        ),
+                                        Text(
+                                          "${carStatus.insideTemp} ºC",
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    margin: const EdgeInsets.only(right: 5),
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                          AppLocalizations.of(context)!.outside,
+                                          style: Theme.of(context).textTheme.labelSmall,
+                                        ),
+                                        Text(
+                                          "${carStatus.outsideTemp} ºC",
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    margin: const EdgeInsets.only(left: 5),
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                          carStatus.isClimateOn
+                                              ? AppLocalizations.of(context)!.on.toUpperCase()
+                                              : AppLocalizations.of(context)!.off.toUpperCase(),
+                                          style: carStatus.isClimateOn
+                                              ? Theme.of(context).textTheme.labelSmall?.copyWith(color: CustomColors.red)
+                                              : Theme.of(context).textTheme.labelSmall,
+                                        ),
+                                        if (!carStatus.isClimateOn) const Icon(MdiIcons.fanOff),
+                                        if (carStatus.isClimateOn)
+                                          const Icon(
+                                            MdiIcons.fan,
+                                            color: CustomColors.red,
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              if (!carStatus.sentryMode) const Icon(MdiIcons.recordCircleOutline),
+                              if (carStatus.sentryMode)
+                                const Icon(
+                                  MdiIcons.recordRec,
+                                  color: CustomColors.red,
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SocCard(carStatus: carStatus),
                     ],
                   ),
                   Row(
@@ -425,36 +382,39 @@ class _DashboardState extends State<Dashboard> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              for (var i = 0; i < 3; i++)
-                                Column(
-                                  children: [
-                                    ListTile(
-                                      contentPadding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 8.0),
-                                      visualDensity: VisualDensity.compact,
-                                      dense: true,
-                                      onTap: () async {
-                                        if (charges.items[i].chargeDetails.isEmpty) {
-                                          await charges.getMoreInfo(i);
-                                        }
-                                        Navigator.pushNamed(
-                                          context,
-                                          Routes.charge,
-                                          arguments: charges.items[i],
-                                        );
-                                      },
-                                      subtitle: Text(
-                                        "${DateFormat("HH:mm").format(charges.items[i].startDate)} - ${DateFormat("HH:mm").format(charges.items[i].endDate)}",
-                                        style: Theme.of(context).textTheme.labelSmall,
+                              if (charges.items.isNotEmpty)
+                                for (var i = 0; i < 3; i++)
+                                  Column(
+                                    children: [
+                                      ListTile(
+                                        contentPadding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 8.0),
+                                        visualDensity: VisualDensity.compact,
+                                        dense: true,
+                                        onTap: () async {
+                                          loading.state = true;
+                                          if (charges.items[i].chargeDetails.isEmpty) {
+                                            await charges.getMoreInfo(i);
+                                          }
+                                          Navigator.pushNamed(
+                                            context,
+                                            Routes.charge,
+                                            arguments: charges.items[i],
+                                          );
+                                          loading.state = false;
+                                        },
+                                        subtitle: Text(
+                                          "${DateFormat("HH:mm").format(charges.items[i].startDate)} - ${DateFormat("HH:mm").format(charges.items[i].endDate)}",
+                                          style: Theme.of(context).textTheme.labelSmall,
+                                        ),
+                                        title: Text(DateFormat("d MMMM y").format(charges.items[i].startDate)),
+                                        trailing: Text("${charges.items[i].cost}€"),
                                       ),
-                                      title: Text(DateFormat("d MMMM y").format(charges.items[i].startDate)),
-                                      trailing: Text("${charges.items[i].cost}€"),
-                                    ),
-                                    if (i != 2)
-                                      const Divider(
-                                        height: 0,
-                                      )
-                                  ],
-                                ),
+                                      if (i != 2)
+                                        const Divider(
+                                          height: 0,
+                                        )
+                                    ],
+                                  ),
                             ],
                           ),
                         )
@@ -484,36 +444,39 @@ class _DashboardState extends State<Dashboard> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              for (var i = 0; i < 3; i++)
-                                Column(
-                                  children: [
-                                    ListTile(
-                                      contentPadding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 8.0),
-                                      visualDensity: VisualDensity.compact,
-                                      dense: true,
-                                      onTap: () async {
-                                        if (drives.items[i].driveDetails.isEmpty) {
-                                          await drives.getMoreInfo(i);
-                                        }
-                                        Navigator.pushNamed(
-                                          context,
-                                          Routes.drive,
-                                          arguments: drives.items[i],
-                                        );
-                                      },
-                                      subtitle: Text(
-                                        "${DateFormat("HH:mm").format(drives.items[i].startDate)} - ${DateFormat("HH:mm").format(drives.items[i].endDate)}",
-                                        style: Theme.of(context).textTheme.labelSmall,
+                              if (drives.items.isNotEmpty)
+                                for (var i = 0; i < 3; i++)
+                                  Column(
+                                    children: [
+                                      ListTile(
+                                        contentPadding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 8.0),
+                                        visualDensity: VisualDensity.compact,
+                                        dense: true,
+                                        onTap: () async {
+                                          loading.state = true;
+                                          if (drives.items[i].driveDetails.isEmpty) {
+                                            await drives.getMoreInfo(i);
+                                          }
+                                          Navigator.pushNamed(
+                                            context,
+                                            Routes.drive,
+                                            arguments: drives.items[i],
+                                          );
+                                          loading.state = false;
+                                        },
+                                        subtitle: Text(
+                                          "${DateFormat("HH:mm").format(drives.items[i].startDate)} - ${DateFormat("HH:mm").format(drives.items[i].endDate)}",
+                                          style: Theme.of(context).textTheme.labelSmall,
+                                        ),
+                                        title: Text(DateFormat("d MMMM y").format(drives.items[i].startDate)),
+                                        trailing: Text("${drives.items[i].distance}Km"),
                                       ),
-                                      title: Text(DateFormat("d MMMM y").format(drives.items[i].startDate)),
-                                      trailing: Text("${drives.items[i].distance}Km"),
-                                    ),
-                                    if (i != 2)
-                                      const Divider(
-                                        height: 0,
-                                      )
-                                  ],
-                                ),
+                                      if (i != 2)
+                                        const Divider(
+                                          height: 0,
+                                        )
+                                    ],
+                                  ),
                             ],
                           ),
                         )

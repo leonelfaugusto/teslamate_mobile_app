@@ -17,24 +17,28 @@ Future fetchDrives(BuildContext context) async {
       "Authorization": "Basic $send",
     };
   }
-  final response = await http.get(Uri.parse('${preferences.api}/api/v1/cars/${preferences.carID}/drives?show=${drives.show}&page=${drives.page}'),
-      headers: headers);
-  final List<Drive> drivesToAdd = [];
+  try {
+    final response = await http.get(Uri.parse('${preferences.api}/api/v1/cars/${preferences.carID}/drives?show=${drives.show}&page=${drives.page}'),
+        headers: headers);
+    final List<Drive> drivesToAdd = [];
 
-  if (response.statusCode == 200) {
-    // If the server did return a 200 OK response,
-    // then parse the JSON.
-    Map<String, dynamic> body = jsonDecode(response.body);
-    if (body['data']['drives'] != null) {
-      for (var charge in (body['data']['drives'] as List)) {
-        drivesToAdd.add(Drive.fromJson(charge));
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      Map<String, dynamic> body = jsonDecode(response.body);
+      if (body['data']['drives'] != null) {
+        for (var drive in (body['data']['drives'] as List)) {
+          drivesToAdd.add(Drive.fromJson(drive));
+        }
       }
+      drives.addDrives(drivesToAdd);
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Failed to load charge');
     }
-    drives.addDrives(drivesToAdd);
-  } else {
-    // If the server did not return a 200 OK response,
-    // then throw an exception.
-    throw Exception('Failed to load charge');
+  } catch (e) {
+    print(e);
   }
 }
 
@@ -51,7 +55,7 @@ class Drives with ChangeNotifier {
     drives = c;
   }
 
-  Drive getDrive(id) {
+  Drive getDrive(int id) {
     return drives.firstWhere((drive) => drive.driveId == id);
   }
 

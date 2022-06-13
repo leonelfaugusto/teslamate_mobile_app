@@ -49,7 +49,7 @@ class Cars with ChangeNotifier {
     cars = c;
   }
 
-  Car getCar(id) {
+  Car getCar(int id) {
     return cars.firstWhere((car) => car.carID == id);
   }
 

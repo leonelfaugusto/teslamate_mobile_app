@@ -51,7 +51,7 @@ class Charges with ChangeNotifier {
     charges = c;
   }
 
-  Charge getCharge(id) {
+  Charge getCharge(int id) {
     return charges.firstWhere((charge) => charge.chargeId == id);
   }
 

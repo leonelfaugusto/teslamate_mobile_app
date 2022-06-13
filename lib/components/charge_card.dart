@@ -4,6 +4,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:provider/provider.dart';
 import 'package:teslamate/classes/charge.dart';
 import 'package:teslamate/classes/charges.dart';
+import 'package:teslamate/classes/loading.dart';
 import 'package:teslamate/utils/routes.dart';
 
 class ChargeCard extends StatefulWidget {
@@ -21,6 +22,7 @@ class _ChargeCardState extends State<ChargeCard> {
   Widget build(BuildContext context) {
     Charges charges = Provider.of<Charges>(context, listen: false);
     Charge charge = charges.items[widget.index];
+    Loading appLoading = Provider.of<Loading>(context, listen: false);
     return Card(
       shape: loading
           ? RoundedRectangleBorder(side: const BorderSide(color: Color.fromARGB(255, 56, 142, 60)), borderRadius: BorderRadius.circular(5))
@@ -29,6 +31,7 @@ class _ChargeCardState extends State<ChargeCard> {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () async {
+          appLoading.state = true;
           setState(() {
             loading = true;
           });
@@ -43,6 +46,7 @@ class _ChargeCardState extends State<ChargeCard> {
           setState(() {
             loading = false;
           });
+          appLoading.state = false;
         },
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -105,7 +109,7 @@ class _ChargeCardState extends State<ChargeCard> {
                 child: Row(
                   children: [
                     Flexible(
-                      flex: charge.startBatteryLevel,
+                      flex: int.parse(charge.startBatteryLevel.toString()),
                       child: Container(
                         height: 3,
                         decoration: const BoxDecoration(
@@ -115,7 +119,7 @@ class _ChargeCardState extends State<ChargeCard> {
                       ),
                     ),
                     Flexible(
-                      flex: charge.batteryDiff,
+                      flex: int.parse(charge.batteryDiff.toString()),
                       child: Container(
                         height: 3,
                         decoration: const BoxDecoration(
@@ -125,7 +129,7 @@ class _ChargeCardState extends State<ChargeCard> {
                       ),
                     ),
                     Flexible(
-                      flex: 100 - charge.endBatteryLevel,
+                      flex: 100 - int.parse(charge.endBatteryLevel.toString()),
                       child: Container(
                         height: 1,
                         color: Colors.black38,

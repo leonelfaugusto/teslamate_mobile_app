@@ -4,19 +4,19 @@ class Drive {
   final int driveId;
   final DateTime startDate;
   final DateTime endDate;
-  final int durationMin;
+  final num durationMin;
   final String durationStr;
-  final dynamic distance;
-  final int startBatteryLevel;
-  final int endBatteryLevel;
-  final int batteryDiff;
-  final dynamic startRange;
-  final dynamic endRange;
-  final dynamic rangeDiff;
+  final num distance;
+  final num startBatteryLevel;
+  final num endBatteryLevel;
+  final num batteryDiff;
+  final num startRange;
+  final num endRange;
+  final num rangeDiff;
   final String startAddress;
   final String endAddress;
-  final dynamic speedMax;
-  final dynamic speedAvg;
+  final num speedMax;
+  final num speedAvg;
   List<DriveDetail> driveDetails;
 
   Drive({
@@ -40,15 +40,15 @@ class Drive {
   });
 
   factory Drive.fromJson(Map<String, dynamic> json) {
-    double diffCalc = json['range_rated']['end_range'] - json['range_rated']['start_range'];
-    double diff = double.parse(diffCalc.toStringAsFixed(2));
+    num diffCalc = json['range_rated']['end_range'] - json['range_rated']['start_range'];
+    num diff = double.parse(diffCalc.toStringAsFixed(2));
     return Drive(
       driveId: json['drive_id'],
-      startDate: DateTime.parse(json['start_date']),
-      endDate: DateTime.parse(json['end_date']),
+      startDate: DateTime.parse(json['start_date']).toLocal(),
+      endDate: DateTime.parse(json['end_date']).toLocal(),
       durationMin: json['duration_min'],
       durationStr: json['duration_str'],
-      distance: json['odometer_details']['odometer_distance'].toStringAsFixed(2),
+      distance: double.parse(json['odometer_details']['odometer_distance'].toStringAsFixed(2)),
       startBatteryLevel: json['battery_details']['start_usable_battery_level'],
       endBatteryLevel: json['battery_details']['end_usable_battery_level'],
       batteryDiff: json['battery_details']['end_usable_battery_level'] - json['battery_details']['start_usable_battery_level'],

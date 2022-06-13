@@ -59,7 +59,7 @@ class ChargeDetail {
   factory ChargeDetail.fromJson(Map<String, dynamic> json) {
     return ChargeDetail(
       chargeDetailId: json['detail_id'],
-      date: DateTime.parse(json['date']),
+      date: DateTime.parse(json['date']).toLocal(),
       bateryLevel: json['battery_level'],
       usableBateryLevel: json['usable_battery_level'],
       chargeEnergyAdded: json['charge_energy_added'],

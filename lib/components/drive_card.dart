@@ -4,6 +4,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:provider/provider.dart';
 import 'package:teslamate/classes/drive.dart';
 import 'package:teslamate/classes/drives.dart';
+import 'package:teslamate/classes/loading.dart';
 import 'package:teslamate/utils/routes.dart';
 
 class DriveCard extends StatefulWidget {
@@ -21,6 +22,7 @@ class _DriveCardState extends State<DriveCard> {
   Widget build(BuildContext context) {
     Drives drives = Provider.of<Drives>(context, listen: false);
     Drive drive = drives.items[widget.index];
+    Loading appLoading = Provider.of<Loading>(context, listen: false);
     return Card(
       shape: loading ? RoundedRectangleBorder(side: const BorderSide(color: Colors.amber), borderRadius: BorderRadius.circular(5)) : null,
       elevation: 0,
@@ -32,6 +34,7 @@ class _DriveCardState extends State<DriveCard> {
           });
         },
         onTap: () async {
+          appLoading.state = true;
           setState(() {
             loading = true;
           });
@@ -46,6 +49,7 @@ class _DriveCardState extends State<DriveCard> {
           setState(() {
             loading = false;
           });
+          appLoading.state = false;
         },
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -108,7 +112,7 @@ class _DriveCardState extends State<DriveCard> {
                 child: Row(
                   children: [
                     Flexible(
-                      flex: drive.endBatteryLevel,
+                      flex: int.parse(drive.endBatteryLevel.toString()),
                       child: Container(
                         height: 3,
                         decoration: const BoxDecoration(
@@ -118,7 +122,7 @@ class _DriveCardState extends State<DriveCard> {
                       ),
                     ),
                     Flexible(
-                      flex: -drive.batteryDiff,
+                      flex: -int.parse(drive.batteryDiff.toString()),
                       child: Container(
                         height: 3,
                         decoration: const BoxDecoration(
@@ -128,7 +132,7 @@ class _DriveCardState extends State<DriveCard> {
                       ),
                     ),
                     Flexible(
-                      flex: 100 - drive.startBatteryLevel,
+                      flex: 100 - int.parse(drive.startBatteryLevel.toString()),
                       child: Container(
                         height: 1,
                         color: Colors.black38,

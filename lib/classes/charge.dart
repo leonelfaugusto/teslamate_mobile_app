@@ -1,21 +1,22 @@
+import 'package:intl/intl.dart';
 import 'package:teslamate/classes/charge_detail.dart';
 
 class Charge {
   final int chargeId;
   final DateTime startDate;
   final DateTime endDate;
-  final int durationMin;
+  final num durationMin;
   final String durationStr;
-  final dynamic cost;
-  final int startBatteryLevel;
-  final int endBatteryLevel;
-  final int batteryDiff;
+  final num cost;
+  final num startBatteryLevel;
+  final num endBatteryLevel;
+  final num batteryDiff;
   final String address;
-  final dynamic chargeEnergyAdded;
-  final dynamic chargeenergyUsed;
-  final dynamic startRange;
-  final dynamic endRange;
-  final dynamic rangeDiff;
+  final num chargeEnergyAdded;
+  final num chargeenergyUsed;
+  final num startRange;
+  final num endRange;
+  final num rangeDiff;
   List<ChargeDetail> chargeDetails;
 
   Charge({
@@ -38,10 +39,11 @@ class Charge {
   });
 
   factory Charge.fromJson(Map<String, dynamic> json) {
+    print(DateTime.parse(json['start_date']).toLocal());
     return Charge(
       chargeId: json['charge_id'],
-      startDate: DateTime.parse(json['start_date']),
-      endDate: DateTime.parse(json['end_date']),
+      startDate: DateTime.parse(json['start_date']).toLocal(),
+      endDate: DateTime.parse(json['end_date']).toLocal(),
       durationMin: json['duration_min'],
       durationStr: json['duration_str'],
       cost: json['cost'],

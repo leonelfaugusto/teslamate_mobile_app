@@ -48,6 +48,11 @@ dependencies:
   fl_chart: ^0.41.0
   grouped_list: ^4.2.0
   platform_maps_flutter: ^1.0.2
+  firebase_core: ^1.13.1
+  firebase_messaging: ^11.2.11
+  web_socket_channel: ^2.1.0
+  flutter_dotenv: ^5.0.2
+  progress_indicators: ^1.0.0
 
 dev_dependencies:
   flutter_test:
@@ -77,6 +82,7 @@ flutter:
      - lib/assets/images/gps.png
      - lib/assets/images/logo_splash.png
      - lib/assets/map_styles/dark.json
+     - .env
 
   generate: true
 

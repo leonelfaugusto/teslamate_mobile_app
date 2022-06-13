@@ -43,7 +43,7 @@ class DriveDetail {
   final double longitude;
   final int? speed;
   final int? power;
-  final double odometer;
+  final dynamic odometer;
   final int? bateryLevel;
   final int? usableBateryLevel;
   final int? elevation;
@@ -64,7 +64,7 @@ class DriveDetail {
   factory DriveDetail.fromJson(Map<String, dynamic> json) {
     return DriveDetail(
       driveDetailId: json['detail_id'],
-      date: DateTime.parse(json['date']),
+      date: DateTime.parse(json['date']).toLocal(),
       bateryLevel: json['battery_level'],
       usableBateryLevel: json['usable_battery_level'],
       elevation: json['elevation'],
